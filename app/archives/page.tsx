@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 
+import { createPageMetadata } from "@/lib/metadata";
 import { getArchiveGroups } from "@/lib/posts";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "归档",
   description: "按年份浏览全部已发布文章。",
-};
+  path: "/archives",
+});
 
 export default async function ArchivesPage() {
   const archives = await getArchiveGroups();

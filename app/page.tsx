@@ -1,8 +1,16 @@
 import Link from "next/link";
 
 import { PostCard } from "@/components/post/post-card";
+import { createPageMetadata } from "@/lib/metadata";
 import { getAllPosts, getTagSummaries } from "@/lib/posts";
 import { siteConfig } from "@/lib/site-config";
+
+export const metadata = createPageMetadata({
+  title: siteConfig.name,
+  description: siteConfig.description,
+  path: "/",
+  absoluteTitle: true,
+});
 
 export default async function Home() {
   const posts = await getAllPosts();

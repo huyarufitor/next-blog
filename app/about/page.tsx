@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
-
+import { createPageMetadata } from "@/lib/metadata";
 import { siteConfig } from "@/lib/site-config";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "关于",
   description: `了解 ${siteConfig.author.name}，以及 ${siteConfig.name} 使用的技术栈。`,
-};
+  path: "/about",
+});
 
 const stack = [
   "基于 Next.js 16 与 App Router 构建",

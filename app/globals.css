@@ -194,39 +194,26 @@ input {
   background-color: var(--subtle);
 }
 
-.theme-toggle {
-  display: inline-grid;
-  grid-template-columns: repeat(3, 36px);
-  width: 116px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--subtle);
-  padding: 1px;
-}
-
 .theme-toggle-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
+  flex: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--subtle);
   color: var(--text-muted);
   cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
 }
 
 .theme-toggle-button:hover {
+  background: var(--panel-solid);
   color: var(--text-strong);
 }
 
-.theme-toggle-button[aria-pressed="true"] {
-  background: var(--panel-solid);
-  color: var(--accent-strong);
-  box-shadow: 0 1px 4px var(--shadow);
+.theme-toggle-placeholder {
+  cursor: default;
 }
 
 .giscus-placeholder {

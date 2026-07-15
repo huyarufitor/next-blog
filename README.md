@@ -1,6 +1,6 @@
 # 栈间笔记
 
-一个静态优先的中文技术博客，基于 Next.js 16、React 19、TypeScript、Tailwind CSS 4 和本地 MDX。项目包含标签、归档、中文搜索、RSS、Sitemap、文章封面、动态 OG 图、三态主题、Giscus 评论和 Vercel Analytics。
+一个静态优先的中文技术博客，基于 Next.js 16、React 19、TypeScript、Tailwind CSS 4 和本地 MDX。项目包含标签、归档、中文搜索、RSS、Sitemap、文章封面、动态 OG 图、明暗主题、Giscus 评论和 Vercel Analytics。
 
 当前站点名称“栈间笔记”和作者“林默”均为 AI Mock 信息，仅用于演示完整博客体验，并不代表真实人物或组织。上线前可在 `lib/site-config.ts` 中替换站点名称、描述和作者信息，并通过环境变量设置真实域名与外部服务。
 

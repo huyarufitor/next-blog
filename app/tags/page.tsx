@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 
+import { createPageMetadata } from "@/lib/metadata";
 import { getTagSummaries } from "@/lib/posts";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "标签",
   description: "浏览博客的全部文章标签。",
-};
+  path: "/tags",
+});
 
 export default async function TagsPage() {
   const tags = await getTagSummaries();

@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
-
 import { SearchPanel } from "@/components/search/search-panel";
+import { createPageMetadata } from "@/lib/metadata";
 import { getSearchDocuments } from "@/lib/posts";
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: "搜索",
   description: "按标题、摘要、标签或正文搜索文章。",
-};
+  path: "/search",
+});
 
 export default async function SearchPage() {
   const documents = await getSearchDocuments();
