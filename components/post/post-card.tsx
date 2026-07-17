@@ -33,6 +33,12 @@ export function PostCard({ post }: PostCardProps) {
         </h3>
         <p className="mt-3 text-base leading-7 text-muted">{post.summary}</p>
         <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            className="tag-chip"
+            href={`/categories/${post.category.slug}`}
+          >
+            {post.category.name}
+          </Link>
           {post.tags.map((tag) => (
             <Link key={tag.slug} className="tag-chip" href={`/tags/${tag.slug}`}>
               {tag.name}

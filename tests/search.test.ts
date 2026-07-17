@@ -24,6 +24,7 @@ describe("buildSearch", () => {
     ["博客", "getting-started-with-this-blog"],
     ["过度", "static-first-blogging"],
     ["外部搜索", "static-first-blogging"],
+    ["技术实践", "getting-started-with-this-blog"],
   ])("finds a real post for the middle term %s", async (query, slug) => {
     const searchModule = await loadSearchModule();
 

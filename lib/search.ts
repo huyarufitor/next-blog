@@ -56,13 +56,15 @@ export function tokenizeSearchText(text: string) {
 
 export function buildSearch(documents: SearchDocument[]) {
   const search = new MiniSearch<IndexedSearchDocument>({
-    fields: ["title", "summary", "text", "tags"],
+    fields: ["title", "summary", "category", "text", "tags"],
     storeFields: [
       "slug",
       "title",
       "summary",
       "date",
       "formattedDate",
+      "category",
+      "categorySlug",
       "tags",
     ],
     tokenize: tokenizeSearchText,

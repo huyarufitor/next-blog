@@ -90,6 +90,9 @@ export default async function PostPage({ params }: PostPageProps) {
       <header className="mx-auto max-w-5xl space-y-8">
         <div className="max-w-3xl space-y-6">
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
+            <Link className="tag-chip" href={`/categories/${post.category.slug}`}>
+              {post.category.name}
+            </Link>
             <span>{post.formattedDate}</span>
             <span aria-hidden="true">/</span>
             <span>{post.readingTime}</span>

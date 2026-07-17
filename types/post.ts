@@ -3,6 +3,12 @@ export type Tag = {
   slug: string;
 };
 
+export type Category = {
+  name: string;
+  slug: string;
+  description: string;
+};
+
 export type TocEntry = {
   id: string;
   text: string;
@@ -15,6 +21,7 @@ export type PostSummary = {
   date: string;
   formattedDate: string;
   summary: string;
+  category: Category;
   tags: Tag[];
   draft: boolean;
   cover?: string;
@@ -30,6 +37,10 @@ export type TagSummary = Tag & {
   count: number;
 };
 
+export type CategorySummary = Category & {
+  count: number;
+};
+
 export type ArchiveGroup = {
   year: string;
   posts: PostSummary[];
@@ -42,6 +53,8 @@ export type SearchDocument = {
   summary: string;
   date: string;
   formattedDate: string;
+  category: string;
+  categorySlug: string;
   tags: string[];
   text: string;
 };

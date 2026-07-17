@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { PostCard } from "@/components/post/post-card";
 import { createPageMetadata } from "@/lib/metadata";
-import { getAllPosts, getTagSummaries } from "@/lib/posts";
+import { getAllPosts, getCategorySummaries } from "@/lib/posts";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata = createPageMetadata({
@@ -14,7 +14,7 @@ export const metadata = createPageMetadata({
 
 export default async function Home() {
   const posts = await getAllPosts();
-  const tags = await getTagSummaries();
+  const categories = await getCategorySummaries();
   const featuredPosts = posts.slice(0, 3);
   const recentPosts = posts.slice(3);
 
@@ -29,7 +29,7 @@ export default async function Home() {
             {siteConfig.description}
           </h1>
           <p className="max-w-2xl text-lg leading-8 text-muted">
-            记录经得起时间检验的工程实践：从架构取舍到实现细节，把复杂问题讲清楚。
+            把工作里的判断、音乐学习的过程、生活中的感受，以及那些还在形成中的人生思考慢慢写下来。
           </p>
           <div className="flex flex-wrap gap-3">
             <Link className="button-primary" href="/search">
@@ -45,11 +45,21 @@ export default async function Home() {
           <p className="text-sm font-medium uppercase text-teal">
             内容方向
           </p>
-          <ul className="mt-4 space-y-3 text-sm leading-7 text-muted">
-            <li>面向内容型产品的静态优先架构</li>
-            <li>前端基础设施、DX 与可维护的 UI 系统</li>
-            <li>重视实现细节与真实取舍的工程记录</li>
-          </ul>
+          <div className="mt-4 space-y-3 text-sm leading-7 text-muted">
+            {categories.map((category) => (
+              <Link
+                key={category.slug}
+                className="block rounded-md px-3 py-2 transition-colors hover:bg-inverse hover:text-inverse-text"
+                href={`/categories/${category.slug}`}
+              >
+                <span className="font-medium text-strong">{category.name}</span>
+                <span className="ml-2 text-muted">({category.count})</span>
+                <p className="mt-1 text-sm leading-6 text-muted">
+                  {category.description}
+                </p>
+              </Link>
+            ))}
+          </div>
         </aside>
       </section>
 
@@ -99,6 +109,12 @@ export default async function Home() {
                     {post.summary}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-2">
+                    <Link
+                      className="tag-chip"
+                      href={`/categories/${post.category.slug}`}
+                    >
+                      {post.category.name}
+                    </Link>
                     {post.tags.map((tag) => (
                       <Link
                         key={tag.slug}
@@ -121,21 +137,33 @@ export default async function Home() {
 
         <aside className="space-y-6">
           <div className="surface-panel rounded-lg p-6">
-            <p className="eyebrow">主题</p>
+            <p className="eyebrow">分类</p>
             <h2 className="mt-2 text-2xl font-semibold text-strong">
-              按标签浏览
+              从主线进入内容
             </h2>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {tags.map((tag) => (
+            <div className="mt-5 space-y-3">
+              {categories.map((category) => (
                 <Link
-                  key={tag.slug}
-                  className="tag-chip"
-                  href={`/tags/${tag.slug}`}
+                  key={category.slug}
+                  className="block rounded-lg border border-border px-4 py-3 transition-colors hover:bg-subtle"
+                  href={`/categories/${category.slug}`}
                 >
-                  {tag.name} <span className="text-muted">({tag.count})</span>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="font-medium text-strong">{category.name}</span>
+                    <span className="text-sm text-muted">{category.count} 篇</span>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-muted">
+                    {category.description}
+                  </p>
                 </Link>
               ))}
             </div>
+            <Link
+              className="mt-5 inline-flex text-sm font-medium text-accent-strong"
+              href="/tags"
+            >
+              继续按标签浏览
+            </Link>
           </div>
 
           <div className="rounded-lg border border-border bg-inverse p-6 text-inverse-text shadow-sm">

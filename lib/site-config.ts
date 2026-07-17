@@ -110,12 +110,12 @@ export function getGiscusConfig(
 export const siteConfig = {
   name: "栈间笔记",
   description:
-    "聚焦前端架构、工程效率与静态优先内容系统的技术博客。",
+    "记录技术实践、工作手记、音乐学习、生活切片与人生思考的个人博客。",
   url: getSiteUrl(),
   author: {
-    name: "林默",
-    role: "AI 技术写作者",
+    name: "fitorhu",
+    role: "开发者 / 音乐学习者",
     summary:
-      "林默是为本站演示而构造的 AI 作者身份，用于呈现技术博客的内容结构与阅读体验，并非真实人物。",
+      "一个热爱生活的女开发者，做过 4 年音视频、2 年音乐相关 Web，也喜欢健身、游泳和羽毛球。这里会记录技术、音乐学习与日常思考，也认真寻找 AI 时代里依然值得长期投入的方向。",
   },
 } as const;

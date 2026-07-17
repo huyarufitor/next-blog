@@ -32,6 +32,7 @@ npm run build
 title: "文章标题"
 date: "2026-07-13"
 summary: "用于列表和 SEO 的文章摘要。"
+category: "技术实践"
 tags:
   - "架构"
   - "前端"
@@ -44,7 +45,17 @@ draft: false
 这里开始写 MDX 正文。
 ```
 
-`title`、`date`、`summary` 和 `tags` 为核心字段；`draft` 可省略，默认为 `false`。`cover` 可省略；当前演示封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。也可以把 `cover` 指向 `public` 下的静态图片。
+推荐直接复制 [content/post-template.mdx](/Users/fitor/Documents/web-demo/content/post-template.mdx) 作为新文章起点。
+
+`title`、`date`、`summary`、`category` 和 `tags` 为核心字段；`draft` 可省略，默认为 `false`。`category` 目前使用固定集合：
+
+- `技术实践`
+- `工作手记`
+- `音乐学习`
+- `生活切片`
+- `人生思考`
+
+`cover` 可省略；当前演示封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。也可以把 `cover` 指向 `public` 下的静态图片。
 
 ## 环境变量
 

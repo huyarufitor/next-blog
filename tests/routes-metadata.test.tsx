@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import { metadata as aboutMetadata } from "@/app/about/page";
 import { metadata as archivesMetadata } from "@/app/archives/page";
+import CategoryDetailPage, {
+  generateMetadata as generateCategoryMetadata,
+} from "@/app/categories/[category]/page";
+import { metadata as categoriesMetadata } from "@/app/categories/page";
 import { metadata as homeMetadata } from "@/app/page";
 import { metadata as searchMetadata } from "@/app/search/page";
 import TagDetailPage, {
@@ -16,6 +20,7 @@ const staticPages = [
   ["/", homeMetadata],
   ["/about", aboutMetadata],
   ["/archives", archivesMetadata],
+  ["/categories", categoriesMetadata],
   ["/search", searchMetadata],
   ["/tags", tagsMetadata],
 ] as const;
@@ -57,5 +62,29 @@ describe("encoded Chinese tag routes", () => {
 
     expect(markup).toContain("性能");
     expect(markup).toContain("静态优先的博客，不必过度设计");
+  });
+});
+
+describe("category routes", () => {
+  it("generates canonical metadata for a category detail page", async () => {
+    const metadata = await generateCategoryMetadata({
+      params: Promise.resolve({ category: "technical-practice" }),
+    });
+
+    expect(metadata).toMatchObject({
+      title: "分类：技术实践",
+      alternates: { canonical: "/categories/technical-practice" },
+      openGraph: { url: `${siteConfig.url}/categories/technical-practice` },
+    });
+  });
+
+  it("renders posts for a populated category", async () => {
+    const page = await CategoryDetailPage({
+      params: Promise.resolve({ category: "technical-practice" }),
+    });
+    const markup = renderToStaticMarkup(page);
+
+    expect(markup).toContain("技术实践");
+    expect(markup).toContain("从零搭建这个技术博客");
   });
 });

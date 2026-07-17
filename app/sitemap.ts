@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
 
+import { getAllCategories } from "@/lib/categories";
 import { getAllPosts, getTagSummaries } from "@/lib/posts";
 import { siteConfig } from "@/lib/site-config";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, tags] = await Promise.all([getAllPosts(), getTagSummaries()]);
+  const categories = getAllCategories();
 
-  const staticRoutes = ["", "/about", "/archives", "/search", "/tags"].map(
+  const staticRoutes = ["", "/about", "/archives", "/categories", "/search", "/tags"].map(
     (route) => ({
       url: `${siteConfig.url}${route}`,
       lastModified: new Date(),
@@ -23,5 +25,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }));
 
-  return [...staticRoutes, ...postRoutes, ...tagRoutes];
+  const categoryRoutes = categories.map((category) => ({
+    url: `${siteConfig.url}/categories/${category.slug}`,
+    lastModified: new Date(),
+  }));
+
+  return [...staticRoutes, ...postRoutes, ...categoryRoutes, ...tagRoutes];
 }

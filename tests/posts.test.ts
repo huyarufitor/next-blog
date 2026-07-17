@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   formatPostDate,
   formatReadingTime,
+  getCategorySummaries,
+  getPostsByCategory,
   getPostYear,
 } from "@/lib/posts";
 
@@ -37,4 +39,26 @@ describe("formatReadingTime", () => {
       expect(formatReadingTime(minutes)).toBe("约 1 分钟阅读");
     },
   );
+});
+
+describe("category queries", () => {
+  it("returns all fixed categories with counts", async () => {
+    const categories = await getCategorySummaries();
+
+    expect(categories.map((category) => category.name)).toEqual([
+      "技术实践",
+      "工作手记",
+      "音乐学习",
+      "生活切片",
+      "人生思考",
+    ]);
+    expect(categories.find((category) => category.slug === "technical-practice")?.count).toBe(2);
+  });
+
+  it("filters posts by category slug", async () => {
+    const posts = await getPostsByCategory("technical-practice");
+
+    expect(posts).toHaveLength(2);
+    expect(posts.every((post) => post.category.slug === "technical-practice")).toBe(true);
+  });
 });

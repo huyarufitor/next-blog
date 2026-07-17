@@ -6,8 +6,14 @@ import matter from "gray-matter";
 import readingTime from "reading-time";
 import { z } from "zod";
 
+import {
+  categoryNames,
+  getAllCategories,
+  getCategoryByName,
+} from "@/lib/categories";
 import type {
   ArchiveGroup,
+  CategorySummary,
   Post,
   PostSummary,
   SearchDocument,
@@ -51,6 +57,7 @@ const frontmatterSchema = z.object({
   title: z.string().min(1),
   date: z.string().min(1),
   summary: z.string().min(1),
+  category: z.enum(categoryNames),
   tags: z.array(z.string()).default([]),
   draft: z.boolean().optional().default(false),
   cover: z.string().optional(),
@@ -105,6 +112,7 @@ function sortPosts(posts: PostSummary[]) {
 function toSummary(slug: string, source: string): Post {
   const { data, content } = matter(source);
   const frontmatter = frontmatterSchema.parse(data);
+  const category = getCategoryByName(frontmatter.category);
   const tags = frontmatter.tags.map((tag) => ({
     name: tag,
     slug: normalizeTag(tag),
@@ -116,6 +124,7 @@ function toSummary(slug: string, source: string): Post {
     date: frontmatter.date,
     formattedDate: formatPostDate(frontmatter.date),
     summary: frontmatter.summary,
+    category,
     tags,
     draft: frontmatter.draft,
     cover: frontmatter.cover,
@@ -152,6 +161,7 @@ export async function getAllPosts(options?: { includeDrafts?: boolean }) {
         date: post.date,
         formattedDate: post.formattedDate,
         summary: post.summary,
+        category: post.category,
         tags: post.tags,
         draft: post.draft,
         cover: post.cover,
@@ -197,9 +207,37 @@ export async function getTagSummaries(): Promise<TagSummary[]> {
   );
 }
 
+export async function getCategorySummaries(): Promise<CategorySummary[]> {
+  const posts = await getAllPosts();
+  const categories = new Map<string, CategorySummary>(
+    getAllCategories().map((category) => [
+      category.slug,
+      {
+        ...category,
+        count: 0,
+      },
+    ]),
+  );
+
+  for (const post of posts) {
+    const existing = categories.get(post.category.slug);
+
+    if (existing) {
+      existing.count += 1;
+    }
+  }
+
+  return getAllCategories().map((category) => categories.get(category.slug)!);
+}
+
 export async function getPostsByTag(tagSlug: string) {
   const posts = await getAllPosts();
   return posts.filter((post) => post.tags.some((tag) => tag.slug === tagSlug));
+}
+
+export async function getPostsByCategory(categorySlug: string) {
+  const posts = await getAllPosts();
+  return posts.filter((post) => post.category.slug === categorySlug);
 }
 
 export async function getArchiveGroups(): Promise<ArchiveGroup[]> {
@@ -239,10 +277,11 @@ export async function getRelatedPosts(post: Post, count = 3) {
     .filter((candidate) => candidate.slug !== post.slug)
     .map((candidate) => ({
       candidate,
-      score: candidate.tags.reduce(
-        (total, tag) => total + (currentTags.has(tag.slug) ? 1 : 0),
-        0,
-      ),
+      score:
+        candidate.tags.reduce(
+          (total, tag) => total + (currentTags.has(tag.slug) ? 1 : 0),
+          0,
+        ) + (candidate.category.slug === post.category.slug ? 2 : 0),
     }))
     .filter((item) => item.score > 0)
     .sort((left, right) => right.score - left.score)
@@ -267,8 +306,10 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
             summary: post.summary,
             date: post.date,
             formattedDate: post.formattedDate,
+            category: post.category.name,
+            categorySlug: post.category.slug,
             tags: post.tags.map((tag) => tag.name),
-            text: stripMdx(post.content),
+            text: `${post.category.name} ${stripMdx(post.content)}`,
           };
     }),
   );

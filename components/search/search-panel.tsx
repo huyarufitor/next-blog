@@ -16,13 +16,24 @@ export function SearchPanel({ documents }: SearchPanelProps) {
 
   const results =
     query.trim().length === 0
-      ? documents.slice(0, 6)
+      ? documents.slice(0, 6).map((document) => ({
+          slug: document.slug,
+          title: document.title,
+          summary: document.summary,
+          date: document.date,
+          formattedDate: document.formattedDate,
+          category: document.category,
+          categorySlug: document.categorySlug,
+          tags: document.tags,
+        }))
       : search.search(query).map((match) => ({
           slug: match.slug as string,
           title: match.title as string,
           summary: match.summary as string,
           date: match.date as string,
           formattedDate: match.formattedDate as string,
+          category: match.category as string,
+          categorySlug: match.categorySlug as string,
           tags:
             typeof match.tags === "string"
               ? match.tags.split(" ").filter(Boolean)
@@ -35,7 +46,7 @@ export function SearchPanel({ documents }: SearchPanelProps) {
         <input
           aria-label="搜索文章"
           className="w-full border-0 bg-transparent text-lg text-strong outline-none placeholder:text-muted"
-          placeholder="按标题、摘要、标签或正文搜索"
+          placeholder="按标题、摘要、分类、标签或正文搜索"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
@@ -56,6 +67,8 @@ export function SearchPanel({ documents }: SearchPanelProps) {
             >
               <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
                 <span>{result.formattedDate}</span>
+                <span aria-hidden="true">/</span>
+                <Link href={`/categories/${result.categorySlug}`}>{result.category}</Link>
                 <span aria-hidden="true">/</span>
                 <span>{result.tags.join(", ")}</span>
               </div>

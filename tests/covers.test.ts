@@ -109,6 +109,11 @@ describe("PostCard cover", () => {
           date: "2026-07-11",
           formattedDate: "2026年7月11日",
           summary: "文章摘要",
+          category: {
+            name: "技术实践",
+            slug: "technical-practice",
+            description: "前端工程、架构取舍、实现细节与技术复盘。",
+          },
           tags: [],
           draft: false,
           cover: "/images/posts/blog-foundation.png",
