@@ -28,7 +28,10 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
 
   const coverName = post.cover?.split("/").at(-1);
   const cover = coverName ? getCoverDefinition(coverName) : null;
-  const theme = cover?.theme === "signal-systems" ? "signal" : "warm";
+  const theme =
+    cover?.theme === "signal-systems" || cover?.theme === "dependency-flow"
+      ? "signal"
+      : "warm";
 
   return new ImageResponse(
     <OgImage

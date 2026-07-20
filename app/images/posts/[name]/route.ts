@@ -495,6 +495,499 @@ function renderSignalSystems() {
   );
 }
 
+function textLabel(
+  content: string,
+  style: CSSProperties,
+  key?: string | number,
+) {
+  return createElement(
+    "div",
+    {
+      key,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        whiteSpace: "nowrap",
+        ...style,
+      },
+    },
+    content,
+  );
+}
+
+function renderDependencyFlow() {
+  const stages = [
+    {
+      key: "source",
+      title: "Source",
+      subtitle: "app / components / lib",
+      left: 74,
+      top: 206,
+      color: "#72e6dd",
+      accent: "#133a43",
+    },
+    {
+      key: "build",
+      title: "Build",
+      subtitle: "vite / tsc / sass / eslint",
+      left: 332,
+      top: 170,
+      color: "#f4c84d",
+      accent: "#423311",
+    },
+    {
+      key: "deploy",
+      title: "Deploy",
+      subtitle: "dist / ci / cd",
+      left: 602,
+      top: 206,
+      color: "#ff8b5e",
+      accent: "#4b2115",
+    },
+    {
+      key: "runtime",
+      title: "Runtime",
+      subtitle: "vue / axios / browser",
+      left: 866,
+      top: 170,
+      color: "#9df067",
+      accent: "#203f12",
+    },
+  ].map((stage) =>
+    panel(
+      {
+        position: "absolute",
+        left: stage.left,
+        top: stage.top,
+        display: "flex",
+        width: 212,
+        height: 150,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        borderRadius: 28,
+        border: "3px solid #d4eef0",
+        background: "#10232a",
+        boxShadow: "0 18px 36px rgba(2, 14, 17, 0.22)",
+      },
+      [
+        panel(
+          {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "18px 18px 0 18px",
+          },
+          [
+            panel(
+              {
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+                background: stage.color,
+              },
+              undefined,
+              `${stage.key}-dot`,
+            ),
+            panel(
+              {
+                width: 54,
+                height: 8,
+                borderRadius: 4,
+                background: stage.accent,
+              },
+              undefined,
+              `${stage.key}-rail`,
+            ),
+          ],
+          `${stage.key}-header`,
+        ),
+        textLabel(
+          stage.title,
+          {
+            justifyContent: "flex-start",
+            padding: "0 18px",
+            fontSize: 30,
+            fontWeight: 700,
+            color: "#f2fbfc",
+          },
+          `${stage.key}-title`,
+        ),
+        textLabel(
+          stage.subtitle,
+          {
+            justifyContent: "flex-start",
+            padding: "0 18px 20px 18px",
+            fontSize: 16,
+            color: "#a7c7ca",
+          },
+          `${stage.key}-subtitle`,
+        ),
+      ],
+      stage.key,
+    ),
+  );
+
+  const flowArrows = [
+    { left: 286, top: 265, width: 68 },
+    { left: 554, top: 265, width: 68 },
+    { left: 820, top: 265, width: 66 },
+  ].flatMap((arrow, index) => [
+    panel(
+      {
+        position: "absolute",
+        left: arrow.left,
+        top: arrow.top,
+        width: arrow.width,
+        height: 6,
+        borderRadius: 3,
+        background: "#d4eef0",
+      },
+      undefined,
+      `arrow-line-${index}`,
+    ),
+    panel(
+      {
+        position: "absolute",
+        left: arrow.left + arrow.width - 8,
+        top: arrow.top - 9,
+        width: 0,
+        height: 0,
+        borderTop: "12px solid transparent",
+        borderBottom: "12px solid transparent",
+        borderLeft: "18px solid #d4eef0",
+      },
+      undefined,
+      `arrow-head-${index}`,
+    ),
+  ]);
+
+  const devDependencyCard = panel(
+    {
+      position: "absolute",
+      left: 246,
+      top: 66,
+      display: "flex",
+      width: 332,
+      height: 116,
+      flexDirection: "column",
+      borderRadius: 24,
+      border: "2px solid #f4c84d",
+      background: "#1a2f36",
+    },
+    [
+      textLabel(
+        "devDependencies",
+        {
+          justifyContent: "flex-start",
+          padding: "18px 20px 8px 20px",
+          fontSize: 22,
+          fontWeight: 700,
+          color: "#f7d87b",
+        },
+        "dev-label",
+      ),
+      textLabel(
+        "Build-time tools only",
+        {
+          justifyContent: "flex-start",
+          padding: "0 20px",
+          fontSize: 15,
+          color: "#bfd1d3",
+        },
+        "dev-copy",
+      ),
+      panel(
+        {
+          display: "flex",
+          gap: 12,
+          padding: "12px 20px 0 20px",
+        },
+        [
+          textLabel(
+            "vite",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#f4c84d",
+              color: "#2f2508",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dev-vite",
+          ),
+          textLabel(
+            "tsc",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#72e6dd",
+              color: "#11353c",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dev-tsc",
+          ),
+          textLabel(
+            "sass",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#ff8b5e",
+              color: "#442014",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dev-sass",
+          ),
+        ],
+        "dev-tags",
+      ),
+    ],
+    "dev-card",
+  );
+
+  const dependencyCard = panel(
+    {
+      position: "absolute",
+      right: 68,
+      bottom: 78,
+      display: "flex",
+      width: 316,
+      height: 126,
+      flexDirection: "column",
+      borderRadius: 24,
+      border: "2px solid #9df067",
+      background: "#1a2f36",
+    },
+    [
+      textLabel(
+        "dependencies",
+        {
+          justifyContent: "flex-start",
+          padding: "18px 20px 8px 20px",
+          fontSize: 22,
+          fontWeight: 700,
+          color: "#c1f79d",
+        },
+        "dep-label",
+      ),
+      textLabel(
+        "Needed after deploy",
+        {
+          justifyContent: "flex-start",
+          padding: "0 20px",
+          fontSize: 15,
+          color: "#bfd1d3",
+        },
+        "dep-copy",
+      ),
+      panel(
+        {
+          display: "flex",
+          gap: 12,
+          padding: "12px 20px 0 20px",
+        },
+        [
+          textLabel(
+            "vue",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#9df067",
+              color: "#183409",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dep-vue",
+          ),
+          textLabel(
+            "axios",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#72e6dd",
+              color: "#11353c",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dep-axios",
+          ),
+          textLabel(
+            "ui",
+            {
+              height: 28,
+              padding: "0 12px",
+              borderRadius: 999,
+              background: "#f4c84d",
+              color: "#2f2508",
+              fontSize: 14,
+              fontWeight: 700,
+            },
+            "dep-ui",
+          ),
+        ],
+        "dep-tags",
+      ),
+    ],
+    "dependency-card",
+  );
+
+  const connectors = [
+    panel(
+      {
+        position: "absolute",
+        left: 488,
+        top: 182,
+        width: 6,
+        height: 52,
+        borderRadius: 3,
+        background: "#f4c84d",
+      },
+      undefined,
+      "dev-connector-line",
+    ),
+    panel(
+      {
+        position: "absolute",
+        left: 481,
+        top: 220,
+        width: 0,
+        height: 0,
+        borderLeft: "10px solid transparent",
+        borderRight: "10px solid transparent",
+        borderTop: "16px solid #f4c84d",
+      },
+      undefined,
+      "dev-connector-head",
+    ),
+    panel(
+      {
+        position: "absolute",
+        right: 226,
+        bottom: 204,
+        width: 6,
+        height: 54,
+        borderRadius: 3,
+        background: "#9df067",
+      },
+      undefined,
+      "dep-connector-line",
+    ),
+    panel(
+      {
+        position: "absolute",
+        right: 219,
+        bottom: 242,
+        width: 0,
+        height: 0,
+        borderLeft: "10px solid transparent",
+        borderRight: "10px solid transparent",
+        borderBottom: "16px solid #9df067",
+      },
+      undefined,
+      "dep-connector-head",
+    ),
+  ];
+
+  const gridLines = Array.from({ length: 8 }, (_, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 60 + index * 138,
+        top: 0,
+        bottom: 0,
+        width: 1,
+        background: index % 2 === 0 ? "#18323b" : "#13272f",
+      },
+      undefined,
+      `grid-v-${index}`,
+    ),
+  );
+
+  return panel(
+    {
+      position: "relative",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background:
+        "linear-gradient(135deg, #09161b 0%, #0d2027 42%, #132b33 100%)",
+    },
+    [
+      ...gridLines,
+      panel(
+        {
+          position: "absolute",
+          left: 64,
+          top: 58,
+          display: "flex",
+          alignItems: "center",
+          gap: 14,
+        },
+        [
+          panel(
+            {
+              width: 18,
+              height: 18,
+              borderRadius: 9,
+              background: "#72e6dd",
+            },
+            undefined,
+            "status-dot",
+          ),
+          panel(
+            {
+              width: 172,
+              height: 8,
+              borderRadius: 4,
+              background: "#d4eef0",
+            },
+            undefined,
+            "status-line",
+          ),
+          textLabel(
+            "npm dependency flow",
+            {
+              fontSize: 18,
+              fontWeight: 600,
+              color: "#d4eef0",
+              letterSpacing: 0.4,
+            },
+            "status-copy",
+          ),
+        ],
+        "status",
+      ),
+      ...flowArrows,
+      ...connectors,
+      ...stages,
+      devDependencyCard,
+      dependencyCard,
+      panel(
+        {
+          position: "absolute",
+          left: 70,
+          right: 68,
+          bottom: 48,
+          height: 10,
+          borderRadius: 6,
+          background: "#d4eef0",
+          opacity: 0.92,
+        },
+        undefined,
+        "baseline",
+      ),
+    ],
+  );
+}
+
 export async function GET(
   _request: Request,
   { params }: CoverRouteContext,
@@ -509,7 +1002,9 @@ export async function GET(
   const artwork =
     cover.theme === "warm-architecture"
       ? renderWarmArchitecture()
-      : renderSignalSystems();
+      : cover.theme === "signal-systems"
+        ? renderSignalSystems()
+        : renderDependencyFlow();
 
   return new ImageResponse(artwork, {
     ...imageSize,

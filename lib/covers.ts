@@ -1,4 +1,7 @@
-export type CoverTheme = "warm-architecture" | "signal-systems";
+export type CoverTheme =
+  | "warm-architecture"
+  | "signal-systems"
+  | "dependency-flow";
 
 export type CoverDefinition = {
   name: string;
@@ -21,6 +24,14 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       name: "static-first.png",
       title: "静态优先的博客，不必过度设计",
       theme: "signal-systems",
+    },
+  ],
+  [
+    "dont-memorize-dependencies.png",
+    {
+      name: "dont-memorize-dependencies.png",
+      title: "别再死记硬背 dependencies 和 devDependencies 了",
+      theme: "dependency-flow",
     },
   ],
 ]);
