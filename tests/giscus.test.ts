@@ -111,5 +111,8 @@ describe("GiscusCommentsView", () => {
     expect(markup).toContain("giscus-widget");
     expect(markup).toContain('lang="zh-CN"');
     expect(markup).toContain('theme="dark"');
+    expect(markup).toContain('repoId="R_kgDOExample"');
+    expect(markup).toContain('categoryId="DIC_kwDOExample4C"');
+    expect(markup).toContain('inputPosition="top"');
   });
 });

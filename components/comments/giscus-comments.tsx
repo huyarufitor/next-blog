@@ -54,13 +54,13 @@ export function GiscusCommentsView({
   return (
     <giscus-widget
       repo={config.repo}
-      repo-id={config.repoId}
+      repoId={config.repoId}
       category={config.category}
-      category-id={config.categoryId}
+      categoryId={config.categoryId}
       mapping="pathname"
-      reactions-enabled="1"
-      emit-metadata="0"
-      input-position="top"
+      reactionsEnabled="1"
+      emitMetadata="0"
+      inputPosition="top"
       lang="zh-CN"
       loading="lazy"
       theme={getGiscusTheme(resolvedTheme)}

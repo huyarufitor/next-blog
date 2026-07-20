@@ -8,13 +8,13 @@ declare module "react" {
         HTMLElement
       > & {
         repo: string;
-        "repo-id": string;
+        repoId: string;
         category: string;
-        "category-id": string;
+        categoryId: string;
         mapping?: string;
-        "reactions-enabled"?: string;
-        "emit-metadata"?: string;
-        "input-position"?: string;
+        reactionsEnabled?: string;
+        emitMetadata?: string;
+        inputPosition?: string;
         lang?: string;
         loading?: string;
         theme?: string;
