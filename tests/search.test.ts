@@ -36,4 +36,22 @@ describe("buildSearch", () => {
 
     expect(results.map((result) => result.id)).toContain(slug);
   });
+
+  it("indexes public notes with their nested knowledge-base URL", async () => {
+    const searchModule = await loadSearchModule();
+
+    expect(searchModule).not.toBeNull();
+    if (!searchModule) return;
+
+    const documents = await getSearchDocuments();
+    const results = searchModule.buildSearch(documents).search("迁移前审核");
+    const note = results.find((result) => result.kind === "note");
+
+    expect(note).toMatchObject({
+      title: "知识库使用说明",
+      url: "/notes/knowledge-base/getting-started",
+      category: "知识库维护",
+    });
+    expect(documents.some((document) => document.url.includes("define-property"))).toBe(false);
+  });
 });

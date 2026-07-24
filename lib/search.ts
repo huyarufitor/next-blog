@@ -59,6 +59,8 @@ export function buildSearch(documents: SearchDocument[]) {
     fields: ["title", "summary", "category", "text", "tags"],
     storeFields: [
       "slug",
+      "kind",
+      "url",
       "title",
       "summary",
       "date",

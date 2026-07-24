@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "vitest run"
+    "test": "vitest run",
+    "migrate:vuepress": "node --no-warnings=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/migrate-vuepress-content.ts"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

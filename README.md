@@ -57,6 +57,48 @@ draft: false
 
 `cover` 可省略；当前演示封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。也可以把 `cover` 指向 `public` 下的静态图片。
 
+## 知识库与本地笔记
+
+内容按用途分为三类：
+
+- `content/posts`：整理完整、适合公开传播的博客文章。
+- `content/notes`：公开学习笔记，支持多层目录，会进入知识库、搜索和 Sitemap。
+- `content/notes-local`：仅本机使用的笔记。该目录被 Git 忽略，生产构建也不会读取。
+
+公开和本地笔记使用相同 frontmatter，可以复制
+[content/note-template.md](/Users/fitor/Documents/web-demo/content/note-template.md) 后手动迁移。文件相对于内容目录的路径就是访问路径，例如
+`content/notes/vue/reactivity.md` 对应 `/notes/vue/reactivity`。
+
+本地笔记不要存放在 `content/notes` 后再依赖字段隐藏。敏感资料应直接放进
+`content/notes-local`，并在提交前使用 `git status` 确认它没有被跟踪。生产环境完全不读取该目录，
+但这不替代对源文件、部署配置和 Git 历史的隐私检查。
+
+## 从 VuePress 选择性迁移
+
+迁移工具只处理 JSON 清单中明确列出的单个 Markdown 文件，不会扫描或递归复制 VuePress
+目录，因此不会误把嵌入的完整项目、依赖 README 或第三方题库当成博客内容。示例清单位于
+`scripts/vuepress-migration.example.json`，每项的 `target` 可选：
+
+- `post`：迁入 `content/posts`，默认生成草稿。
+- `note`：迁入公开的 `content/notes`。
+- `local-note`：迁入被忽略的 `content/notes-local`。
+
+先运行 dry-run：
+
+```bash
+npm run migrate:vuepress -- --manifest scripts/vuepress-migration.example.json
+```
+
+确认报告中的源文件、目标文件和审核结果后，再显式写入：
+
+```bash
+npm run migrate:vuepress -- --manifest scripts/vuepress-migration.example.json --write
+```
+
+工具会拒绝越过清单中的 `sourceRoot`，也不会覆盖已有目标文件。发现 VuePress 容器、Vue
+组件或相对图片时，该项会显示 `needs-review` 且不会写入；应先手动转换专属语法，将图片复制到
+`public/images/notes` 等公开目录并重写 URL。迁移后仍需人工检查版权、内部信息、链接和排版。
+
 ## 环境变量
 
 先以 `.env.example` 为模板创建本地 `.env.local`。示例文件可以提交，真实配置文件会被 Git 忽略。

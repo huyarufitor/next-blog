@@ -1,0 +1,39 @@
+{
+  "sourceRoot": "/Users/fitor/Documents/Projects/githubPro/vuepress-starter/docs",
+  "entries": [
+    {
+      "source": "javascript/es6/throttle.md",
+      "target": "post",
+      "destination": "javascript-throttle.mdx",
+      "metadata": {
+        "summary": "通过时间戳与定时器实现一个基础的 JavaScript 节流函数。",
+        "category": "技术实践",
+        "tags": ["JavaScript", "性能优化"],
+        "date": "2023-01-09",
+        "draft": true
+      }
+    },
+    {
+      "source": "server/tree命令.md",
+      "target": "note",
+      "destination": "server/tree-command.md",
+      "metadata": {
+        "summary": "记录 tree 命令的安装、目录层级限制和常用过滤参数。",
+        "section": "服务器与工具",
+        "tags": ["Shell", "开发工具"],
+        "updated": "2023-01-12"
+      }
+    },
+    {
+      "source": "vue/03 defineProperty.md",
+      "target": "local-note",
+      "destination": "vue/define-property.md",
+      "metadata": {
+        "summary": "Object.defineProperty 的基础用法记录。",
+        "section": "Vue",
+        "tags": ["JavaScript", "Vue"],
+        "updated": "2022-10-12"
+      }
+    }
+  ]
+}

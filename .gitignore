@@ -20,6 +20,9 @@
 # production
 /build
 
+# local-only knowledge base (never commit or include in production builds)
+/content/notes-local/
+
 # misc
 .DS_Store
 *.pem

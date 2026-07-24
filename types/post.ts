@@ -48,13 +48,15 @@ export type ArchiveGroup = {
 
 export type SearchDocument = {
   id: string;
+  kind: "post" | "note";
+  url: string;
   slug: string;
   title: string;
   summary: string;
   date: string;
   formattedDate: string;
   category: string;
-  categorySlug: string;
+  categorySlug?: string;
   tags: string[];
   text: string;
 };

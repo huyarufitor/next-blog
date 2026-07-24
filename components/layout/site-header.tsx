@@ -5,6 +5,7 @@ import { siteConfig } from "@/lib/site-config";
 
 const navigation = [
   { href: "/", label: "首页" },
+  { href: "/notes", label: "知识库" },
   { href: "/archives", label: "归档" },
   { href: "/categories", label: "分类" },
   { href: "/tags", label: "标签" },

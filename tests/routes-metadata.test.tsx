@@ -8,6 +8,10 @@ import CategoryDetailPage, {
 } from "@/app/categories/[category]/page";
 import { metadata as categoriesMetadata } from "@/app/categories/page";
 import { metadata as homeMetadata } from "@/app/page";
+import NoteDetailPage, {
+  generateMetadata as generateNoteMetadata,
+} from "@/app/notes/[...slug]/page";
+import { metadata as notesMetadata } from "@/app/notes/page";
 import { metadata as searchMetadata } from "@/app/search/page";
 import TagDetailPage, {
   decodeTagParam,
@@ -21,6 +25,7 @@ const staticPages = [
   ["/about", aboutMetadata],
   ["/archives", archivesMetadata],
   ["/categories", categoriesMetadata],
+  ["/notes", notesMetadata],
   ["/search", searchMetadata],
   ["/tags", tagsMetadata],
 ] as const;
@@ -86,5 +91,33 @@ describe("category routes", () => {
 
     expect(markup).toContain("技术实践");
     expect(markup).toContain("从零搭建这个技术博客");
+  });
+});
+
+describe("knowledge base routes", () => {
+  const slug = ["knowledge-base", "getting-started"];
+
+  it("generates canonical metadata for a nested public note", async () => {
+    const metadata = await generateNoteMetadata({
+      params: Promise.resolve({ slug }),
+    });
+
+    expect(metadata).toMatchObject({
+      title: "知识库使用说明",
+      alternates: { canonical: "/notes/knowledge-base/getting-started" },
+      openGraph: {
+        url: `${siteConfig.url}/notes/knowledge-base/getting-started`,
+      },
+    });
+  });
+
+  it("renders a nested public note", async () => {
+    const page = await NoteDetailPage({
+      params: Promise.resolve({ slug }),
+    });
+    const markup = renderToStaticMarkup(page);
+
+    expect(markup).toContain("知识库使用说明");
+    expect(markup).toContain("迁移前先审核");
   });
 });

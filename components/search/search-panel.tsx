@@ -18,6 +18,8 @@ export function SearchPanel({ documents }: SearchPanelProps) {
     query.trim().length === 0
       ? documents.slice(0, 6).map((document) => ({
           slug: document.slug,
+          kind: document.kind,
+          url: document.url,
           title: document.title,
           summary: document.summary,
           date: document.date,
@@ -28,6 +30,8 @@ export function SearchPanel({ documents }: SearchPanelProps) {
         }))
       : search.search(query).map((match) => ({
           slug: match.slug as string,
+          kind: match.kind as "post" | "note",
+          url: match.url as string,
           title: match.title as string,
           summary: match.summary as string,
           date: match.date as string,
@@ -62,18 +66,22 @@ export function SearchPanel({ documents }: SearchPanelProps) {
         {results.length > 0 ? (
           results.map((result) => (
             <article
-              key={result.slug}
+              key={`${result.kind}:${result.slug}`}
               className="surface-panel rounded-lg p-6"
             >
               <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
                 <span>{result.formattedDate}</span>
                 <span aria-hidden="true">/</span>
-                <Link href={`/categories/${result.categorySlug}`}>{result.category}</Link>
+                {result.kind === "post" && result.categorySlug ? (
+                  <Link href={`/categories/${result.categorySlug}`}>{result.category}</Link>
+                ) : (
+                  <span>{result.category}</span>
+                )}
                 <span aria-hidden="true">/</span>
                 <span>{result.tags.join(", ")}</span>
               </div>
               <h2 className="mt-3 text-2xl font-semibold text-strong">
-                <Link href={`/posts/${result.slug}`}>{result.title}</Link>
+                <Link href={result.url}>{result.title}</Link>
               </h2>
               <p className="mt-3 text-base leading-7 text-muted">
                 {result.summary}

@@ -11,6 +11,7 @@ import {
   getAllCategories,
   getCategoryByName,
 } from "@/lib/categories";
+import { getAllNotes, getNoteBySlug } from "@/lib/notes";
 import type {
   ArchiveGroup,
   CategorySummary,
@@ -292,7 +293,7 @@ export async function getRelatedPosts(post: Post, count = 3) {
 export async function getSearchDocuments(): Promise<SearchDocument[]> {
   const filenames = await getPostFilenames();
   const posts = await Promise.all(
-    filenames.map(async (filename) => {
+    filenames.map(async (filename): Promise<SearchDocument | null> => {
       const slug = filename.replace(/\.mdx$/, "");
       const source = await fs.readFile(path.join(postsDirectory, filename), "utf8");
       const post = toSummary(slug, source);
@@ -301,6 +302,8 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
         ? null
         : {
             id: slug,
+            kind: "post" as const,
+            url: `/posts/${slug}`,
             slug,
             title: post.title,
             summary: post.summary,
@@ -314,5 +317,32 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
     }),
   );
 
-  return posts.filter((post): post is SearchDocument => post !== null);
+  const publicNotes = await getAllNotes({ includeLocal: false });
+  const notes = await Promise.all(
+    publicNotes.map(async (summary): Promise<SearchDocument | null> => {
+      const note = await getNoteBySlug(summary.slug.split("/"), {
+        includeLocal: false,
+      });
+
+      if (!note) return null;
+
+      return {
+        id: `note:${note.slug}`,
+        kind: "note" as const,
+        url: `/notes/${note.slug}`,
+        slug: note.slug,
+        title: note.title,
+        summary: note.summary,
+        date: note.updated,
+        formattedDate: formatPostDate(note.updated),
+        category: note.section,
+        tags: note.tags,
+        text: `${note.section} ${stripMdx(note.content)}`,
+      };
+    }),
+  );
+
+  return [...posts, ...notes].filter(
+    (document): document is SearchDocument => document !== null,
+  );
 }
