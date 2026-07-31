@@ -24,6 +24,26 @@ describe("getCoverDefinition", () => {
     });
   });
 
+  it("maps the complete interview question bank to its knowledge map theme", () => {
+    expect(
+      getCoverDefinition("complete-frontend-question-bank.png"),
+    ).toMatchObject({
+      name: "complete-frontend-question-bank.png",
+      title:
+        "2026 前端面试题大全：从基础到全栈、AI 与运维，240 道题一次讲透",
+      theme: "knowledge-map",
+    });
+  });
+
+  it("maps the real-skill interview guide to its evidence chain theme", () => {
+    expect(getCoverDefinition("interviewer-evidence-chain.png")).toMatchObject({
+      name: "interviewer-evidence-chain.png",
+      title:
+        "看了 40+份中高级前端简历后，我整理了这套能问出真实水平的面试题",
+      theme: "interview-evidence",
+    });
+  });
+
   it("returns null for an unknown cover name", () => {
     expect(getCoverDefinition("unknown.png")).toBeNull();
   });
@@ -70,7 +90,12 @@ describe("PostCover", () => {
 });
 
 describe("post cover image route", () => {
-  it.each(["blog-foundation.png", "static-first.png"])(
+  it.each([
+    "blog-foundation.png",
+    "static-first.png",
+    "complete-frontend-question-bank.png",
+    "interviewer-evidence-chain.png",
+  ])(
     "returns a complete PNG body for %s",
     async (name) => {
     const response = await GET(new Request("http://localhost"), {

@@ -52,13 +52,16 @@ describe("category queries", () => {
       "生活切片",
       "人生思考",
     ]);
-    expect(categories.find((category) => category.slug === "technical-practice")?.count).toBe(3);
+    expect(
+      categories.find((category) => category.slug === "technical-practice")
+        ?.count,
+    ).toBe(4);
   });
 
   it("filters posts by category slug", async () => {
     const posts = await getPostsByCategory("technical-practice");
 
-    expect(posts).toHaveLength(3);
+    expect(posts).toHaveLength(4);
     expect(posts.every((post) => post.category.slug === "technical-practice")).toBe(true);
   });
 });

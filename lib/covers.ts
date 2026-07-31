@@ -1,7 +1,9 @@
 export type CoverTheme =
   | "warm-architecture"
   | "signal-systems"
-  | "dependency-flow";
+  | "dependency-flow"
+  | "knowledge-map"
+  | "interview-evidence";
 
 export type CoverDefinition = {
   name: string;
@@ -32,6 +34,24 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       name: "dont-memorize-dependencies.png",
       title: "别再死记硬背 dependencies 和 devDependencies 了",
       theme: "dependency-flow",
+    },
+  ],
+  [
+    "complete-frontend-question-bank.png",
+    {
+      name: "complete-frontend-question-bank.png",
+      title:
+        "2026 前端面试题大全：从基础到全栈、AI 与运维，240 道题一次讲透",
+      theme: "knowledge-map",
+    },
+  ],
+  [
+    "interviewer-evidence-chain.png",
+    {
+      name: "interviewer-evidence-chain.png",
+      title:
+        "看了 40+份中高级前端简历后，我整理了这套能问出真实水平的面试题",
+      theme: "interview-evidence",
     },
   ],
 ]);

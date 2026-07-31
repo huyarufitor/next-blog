@@ -988,6 +988,145 @@ function renderDependencyFlow() {
   );
 }
 
+function renderKnowledgeMap() {
+  const nodes = [
+    { left: 112, top: 122, size: 118, color: "#55e6d1", kind: "browser" },
+    { left: 314, top: 78, size: 138, color: "#ff6b57", kind: "code" },
+    { left: 520, top: 254, size: 154, color: "#b8ed58", kind: "database" },
+    { left: 766, top: 92, size: 132, color: "#55e6d1", kind: "cloud" },
+    { left: 932, top: 294, size: 148, color: "#ff6b57", kind: "ai" },
+    { left: 248, top: 430, size: 126, color: "#f3ce55", kind: "deploy" },
+  ];
+
+  const connections = [
+    { left: 206, top: 164, width: 166, rotate: -11, color: "#55e6d1" },
+    { left: 407, top: 182, width: 185, rotate: 36, color: "#ff6b57" },
+    { left: 643, top: 255, width: 190, rotate: -36, color: "#b8ed58" },
+    { left: 858, top: 196, width: 178, rotate: 40, color: "#55e6d1" },
+    { left: 340, top: 458, width: 222, rotate: -28, color: "#f3ce55" },
+    { left: 665, top: 360, width: 305, rotate: 10, color: "#ff6b57" },
+  ].map((connection, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: connection.left,
+        top: connection.top,
+        width: connection.width,
+        height: 4,
+        borderRadius: 2,
+        background: connection.color,
+        opacity: 0.72,
+        transform: `rotate(${connection.rotate}deg)`,
+        transformOrigin: "left center",
+      },
+      undefined,
+      `connection-${index}`,
+    ),
+  );
+
+  const artwork = nodes.map((node, index) => {
+    const glyph =
+      node.kind === "browser"
+        ? [
+            panel({ position: "absolute", left: 24, top: 29, width: node.size - 48, height: node.size - 54, border: "4px solid #071517", borderRadius: 5 }, undefined, "window"),
+            panel({ position: "absolute", left: 24, top: 46, width: node.size - 48, height: 4, background: "#071517" }, undefined, "bar"),
+          ]
+        : node.kind === "code"
+          ? [
+              panel({ position: "absolute", left: 31, top: 48, width: 32, height: 32, borderLeft: "5px solid #071517", borderBottom: "5px solid #071517", transform: "rotate(45deg)" }, undefined, "open"),
+              panel({ position: "absolute", right: 31, top: 48, width: 32, height: 32, borderRight: "5px solid #071517", borderTop: "5px solid #071517", transform: "rotate(45deg)" }, undefined, "close"),
+            ]
+          : node.kind === "database"
+            ? [0, 1, 2].map((row) => panel({ position: "absolute", left: 31, top: 35 + row * 28, width: node.size - 62, height: 34, border: "4px solid #071517", borderRadius: "50%" }, undefined, `disk-${row}`))
+            : node.kind === "cloud"
+              ? [
+                  panel({ position: "absolute", left: 28, top: 55, width: node.size - 56, height: 42, borderRadius: 22, background: "#071517" }, undefined, "cloud-base"),
+                  panel({ position: "absolute", left: 48, top: 36, width: 54, height: 54, borderRadius: 27, background: "#071517" }, undefined, "cloud-cap"),
+                ]
+              : node.kind === "ai"
+                ? [
+                    panel({ position: "absolute", left: 36, top: 36, width: node.size - 72, height: node.size - 72, border: "5px solid #071517", transform: "rotate(45deg)" }, undefined, "core"),
+                    panel({ position: "absolute", left: node.size / 2 - 9, top: node.size / 2 - 9, width: 18, height: 18, borderRadius: 9, background: "#071517" }, undefined, "center"),
+                  ]
+                : [
+                    panel({ position: "absolute", left: node.size / 2 - 5, top: 25, width: 10, height: 55, background: "#071517" }, undefined, "stem"),
+                    panel({ position: "absolute", left: node.size / 2 - 22, top: 60, width: 44, height: 44, borderRight: "10px solid #071517", borderBottom: "10px solid #071517", transform: "rotate(45deg)" }, undefined, "arrow"),
+                  ];
+
+    return panel(
+      {
+        position: "absolute",
+        display: "flex",
+        left: node.left,
+        top: node.top,
+        width: node.size,
+        height: node.size,
+        borderRadius: index % 2 === 0 ? 8 : node.size / 2,
+        background: node.color,
+        border: "5px solid #071517",
+        boxShadow: "10px 10px 0 #071517",
+      },
+      glyph,
+      `node-${node.kind}`,
+    );
+  });
+
+  return panel(
+    { position: "relative", display: "flex", width: "100%", height: "100%", overflow: "hidden", background: "#0b2023" },
+    [
+      ...Array.from({ length: 9 }, (_, index) => panel({ position: "absolute", left: 30 + index * 146, top: 0, width: 1, height: "100%", background: "#17383c" }, undefined, `grid-${index}`)),
+      panel({ position: "absolute", left: 62, top: 54, width: 34, height: 34, background: "#ff6b57" }, undefined, "marker"),
+      ...connections,
+      ...artwork,
+    ],
+  );
+}
+
+function renderInterviewEvidence() {
+  const scoreTicks = Array.from({ length: 7 }, (_, index) =>
+    panel(
+      { position: "absolute", left: 765 + index * 46, top: 525 - index * 8, width: 22, height: 5 + index * 8, background: index < 4 ? "#245bd6" : "#ff6755" },
+      undefined,
+      `tick-${index}`,
+    ),
+  );
+
+  return panel(
+    { position: "relative", display: "flex", width: "100%", height: "100%", overflow: "hidden", background: "#f5f0e7" },
+    [
+      ...Array.from({ length: 6 }, (_, index) => panel({ position: "absolute", left: 92, top: 85 + index * 92, width: 1016, height: 1, background: "#d8cfc1" }, undefined, `guide-${index}`)),
+      panel(
+        { position: "absolute", display: "flex", left: 105, top: 72, width: 354, height: 500, border: "5px solid #1b1b1b", borderRadius: 7, background: "#fffdf8", boxShadow: "14px 14px 0 #1b1b1b" },
+        [
+          panel({ position: "absolute", left: 38, top: 40, width: 84, height: 84, borderRadius: 42, background: "#245bd6" }, undefined, "avatar"),
+          panel({ position: "absolute", left: 150, top: 53, width: 154, height: 15, background: "#1b1b1b" }, undefined, "name"),
+          panel({ position: "absolute", left: 150, top: 88, width: 102, height: 9, background: "#ff6755" }, undefined, "role"),
+          ...Array.from({ length: 5 }, (_, index) => panel({ position: "absolute", left: 38, top: 170 + index * 56, width: index % 2 === 0 ? 262 : 220, height: 12, background: index === 2 ? "#245bd6" : "#1b1b1b" }, undefined, `resume-line-${index}`)),
+          ...Array.from({ length: 4 }, (_, index) => panel({ position: "absolute", left: 38 + index * 67, bottom: 36, width: 42, height: 42, borderRadius: 21, border: `5px solid ${index % 2 === 0 ? "#ff6755" : "#245bd6"}` }, undefined, `skill-${index}`)),
+        ],
+        "resume",
+      ),
+      panel({ position: "absolute", left: 463, top: 304, width: 190, height: 5, background: "#ff6755", transform: "rotate(-10deg)", transformOrigin: "left center" }, undefined, "evidence-line-a"),
+      panel({ position: "absolute", left: 627, top: 185, width: 205, height: 5, background: "#245bd6", transform: "rotate(22deg)", transformOrigin: "left center" }, undefined, "evidence-line-b"),
+      panel(
+        { position: "absolute", display: "flex", left: 564, top: 176, width: 250, height: 174, border: "5px solid #1b1b1b", borderRadius: 7, background: "#ff6755", transform: "rotate(-5deg)", boxShadow: "10px 10px 0 #1b1b1b" },
+        [
+          panel({ position: "absolute", left: 34, top: 40, width: 176, height: 13, background: "#1b1b1b" }, undefined, "question-a"),
+          panel({ position: "absolute", left: 34, top: 79, width: 130, height: 13, background: "#1b1b1b" }, undefined, "question-b"),
+          panel({ position: "absolute", left: 34, top: 118, width: 76, height: 13, background: "#fffdf8" }, undefined, "question-c"),
+        ],
+        "question-card",
+      ),
+      panel({ position: "absolute", left: 832, top: 112, width: 188, height: 188, borderRadius: 94, border: "16px solid #245bd6", background: "rgba(255, 253, 248, 0.45)" }, undefined, "lens"),
+      panel({ position: "absolute", left: 990, top: 274, width: 34, height: 184, borderRadius: 17, background: "#1b1b1b", transform: "rotate(-42deg)", transformOrigin: "top center" }, undefined, "handle"),
+      panel({ position: "absolute", left: 873, top: 170, width: 84, height: 16, background: "#1b1b1b" }, undefined, "lens-line-a"),
+      panel({ position: "absolute", left: 873, top: 212, width: 56, height: 16, background: "#ff6755" }, undefined, "lens-line-b"),
+      panel({ position: "absolute", left: 735, top: 470, width: 390, height: 5, background: "#1b1b1b" }, undefined, "score-baseline"),
+      ...scoreTicks,
+    ],
+  );
+}
+
 export async function GET(
   _request: Request,
   { params }: CoverRouteContext,
@@ -1004,7 +1143,11 @@ export async function GET(
       ? renderWarmArchitecture()
       : cover.theme === "signal-systems"
         ? renderSignalSystems()
-        : renderDependencyFlow();
+        : cover.theme === "dependency-flow"
+          ? renderDependencyFlow()
+          : cover.theme === "knowledge-map"
+            ? renderKnowledgeMap()
+            : renderInterviewEvidence();
 
   return new ImageResponse(artwork, {
     ...imageSize,
