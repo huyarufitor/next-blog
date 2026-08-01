@@ -23,6 +23,9 @@
 # local-only knowledge base (never commit or include in production builds)
 /content/notes-local/
 
+# isolated development worktrees
+/.worktrees/
+
 # misc
 .DS_Store
 *.pem
