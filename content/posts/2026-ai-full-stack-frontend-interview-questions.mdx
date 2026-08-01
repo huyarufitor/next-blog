@@ -1,0 +1,575 @@
+---
+title: "2026 年，AI 全栈时代到了，前端面试题你该会的还是要会"
+date: "2026-08-01"
+summary: "从前端基础、框架与工程化，到网络、Node.js 和 AI 工程化，系统整理 2026 年前端面试仍需掌握的核心问题。"
+category: "技术实践"
+tags:
+  - "前端面试"
+  - "JavaScript"
+  - "前端工程化"
+  - "全栈开发"
+  - "AI"
+draft: true
+---
+
+AI 正在改变前端的工作方式，也在不断扩大前端工程师的能力边界。但工具可以提高效率，扎实的基础、工程判断和解决真实问题的能力，仍然是面试中绕不开的部分。
+
+这份题库会持续更新。当前版本先整理题目，不提供参考答案。标记 `🔴` 的题目建议优先掌握，标记“新增”的题目来自近期补充。
+
+## 一、HTML 基础
+
+### HTML 语义化与 SEO
+
+- HTML5 语义化标签 🔴
+- meta 标签的作用与 SEO 优化
+- 标签语义化与 SEO 优化（新增）
+
+### 学习与职业选择
+
+- 为什么选择前端？学习前端的技术平台与渠道
+
+## 二、JavaScript 核心
+
+### 2.1 基础语法与概念
+
+- `==` 与 `===` 的区别 🔴
+- JS 数据类型有哪些？基础数据类型和引用数据类型的本质区别（栈堆存储）🔴
+- JS 定义变量的方式有几种（var/let/const/function/class）
+- let/const 与 var 的区别（块级作用域、变量提升、暂时性死区、重复声明）
+- const 引用类型修改会出错吗（不会，不能重新赋值但可修改属性）
+- 数组类型怎么判断？typeof 的坑（新增）
+- 如何判断对象为空？（Object.keys()、JSON.stringify()、for...in）
+- 闭包是什么？怎么用？怎么销毁？使用场景有哪些？🔴
+- 闭包可能引起的问题（内存泄露，引用的大对象没释放）（新增）
+- 如何实现闭包（C++ 捕获列表、C 函数栈）
+- 原型链是什么？原型链的顶层是什么（Object.prototype，再往上 null）🔴
+- this 指向和箭头函数的 this 指向 🔴
+- 箭头函数与普通函数的区别（无自身 this、无 arguments、不能作为构造函数）
+- for in 和 for of 的区别 🔴
+- 数组的遍历方法（新增）
+- 如何实现数组乱序（random + 交换）（新增）
+- 普通对象如何支持 for...of 遍历（需实现 `[Symbol.iterator]`）
+- 生成器（Generator）与迭代器（Iterator）
+- 暂时性死区（TDZ）：为什么产生？let/const 存在，var 不存在
+- 可选链操作符 `?.` 的作用
+- import 与 require 的区别
+- 关于 Map 你了解多少？
+- setInterval 和 setTimeout 的区别
+- JS 数组方法中改变原数组的方法
+- 什么是异步？获取 LocalStorage/URL 参数算异步吗？（同步 API，不算异步）
+- 前端的垃圾回收机制（新增）
+- JS 类如何隔离封装数据、class 的实现原理、private/protected/public 区别（新增）
+
+### 2.2 异步编程
+
+- JS 事件循环机制 🔴
+- 宏任务和微任务有哪些？执行顺序？🔴
+- 任务循环在浏览器和 Node 的区别
+- Message Channel 是什么（宏任务，React 调度器选型原因）
+- requestAnimationFrame 属于微任务还是宏任务？（宏任务）
+- async/await 原理及异常捕获 🔴
+- async/await 的本质，和 Promise 的关系（新增）
+- 写代码时怎么判断要用 async/await 还是 Promise（新增）
+- Promise 异常处理 🔴
+- Promise 常用的 API 有哪些（then/catch/finally/all/allSettled/race/any/reject/resolve）（新增）
+- Promise.all、Promise.allSettled、Promise.race、Promise.any 区别 🔴
+- Promise 状态含义、流转、链式调用原理（新增）
+- 缓存 Promise 的实现及应用场景
+- 流式数据解析器（ReadableStream）
+- agent loop（AI 代理循环）
+
+### 2.3 手写代码题与算法
+
+- 手写防抖函数（含 immediate 参数）🔴
+- 手写节流函数 🔴
+- 手写深拷贝（处理对象、数组及其他类型）🔴
+- 手写 Promise.all 🔴
+- 手写 Promise 实现图片懒加载
+- 手写 Promise 实现红绿灯
+- 手写 LRU 缓存算法 🔴
+- 手写超时重试函数
+- 数组分组函数
+- 列表到树的数据变形 🔴
+- 三数之和（变形题）
+- URL 参数解析
+- 数组转树（经典手写）
+- 多个数组的全组合（笛卡尔积）
+- 有效的括号（括号匹配）
+- 同时允许 2 个任务执行的异步调度器
+- 两个有序数组合并成一个有序数组
+- O(log N) 乘法运算符实现
+- 无重复字符的最长子串
+- 重排链表
+- 零钱兑换（动态规划）
+- Top K 频繁子串查询系统
+- 防抖手写（新增）
+- 快速排序手写（新增）
+- 最长递增子序列（新增）
+- 版本号对比（新增）
+- 查找字符串第一个不重复字符（新增）
+- 自定义 Hook usePrev（新增）
+- 手写 addEventListener（新增）
+
+## 三、CSS 与浏览器
+
+### 3.1 CSS 基础与布局
+
+- 盒子模型 🔴
+- 块元素、行内块、行内元素
+- image 标签的 display 类型
+- CSS 单位：EM/REM 区别、VH/VW 含义 🔴
+- CSS 垂直居中实现方式 🔴
+- 0.5px 边框实现（transform: scale(0.5)）
+- position 属性值及用法 🔴
+- 绝对定位和浮动的区别
+- flex 布局及 flex: 1 含义 🔴
+- flex 三个属性（flex-grow/flex-shrink/flex-basis）
+- flex 布局完成从左到右的效果（新增）
+- grid 布局
+- 三栏布局多种实现（含 BFC）🔴
+- BFC 能解决什么问题？🔴
+- 怎样可以产生一个 BFC？
+- CSS 布局问题：左边根据文字无限扩大，右边不扩大只缩小（flex: 1 + flex: 0）（新增）
+- 瀑布流布局实现（新增）
+- 伪元素的作用
+- CSS 自定义变量的作用
+- margin 重叠问题 🔴
+- transform 是否触发重排？（不触发，走合成层）
+- position: absolute 是否触发重排？
+- 设计响应式页面：左侧固定宽度，右侧铺满屏幕
+- 多端适配方案（媒体查询、flex/grid、vw/vh、aspect-ratio）（新增）
+- rem 值应该设置为多少（除以 10，阿里 flexible 方案）（新增）
+- Tailwind CSS 使用（新增）
+
+### 3.2 浏览器原理、安全与缓存
+
+- 从输入 URL 到页面展示全过程 🔴
+- DNS 解析缓存（最少四个层级）（新增）
+- 浏览器事件循环 🔴
+- 浏览器线程进程
+- 浏览器不同 tab 通信方式（LocalStorage 轮询、postMessage、Service Worker）🔴
+- 回流重绘原理及优化 🔴
+- 如何确定卡顿是重排重绘引起？怎么定位优化？（新增）
+- 浏览器从渲染树到显示的完整阶段
+- 为什么光栅化要由 GPU 去做
+- 强缓存与协商缓存 🔴
+- 304 状态码含义（新增）
+- display/visibility 对重排重绘的影响
+- localStorage 存满解决方案（LRU、IndexedDB）
+- sessionStorage 刷新后是否存在
+- XSS 攻击是什么？如何防御？（新增）
+- CSRF 攻击是什么？（新增）
+- 埋点的意义、前端埋点 SDK 实现、Web 性能指标（FP/FCP/LCP/INP/CLS）🔴
+- 同源策略（新增）
+
+### 3.3 性能优化
+
+- FCP 优化方法 🔴
+- 电商项目中 FCP 从 3.3s 优化到 1.8s 的具体方案（新增）
+- 列举优化 CSS 减少首屏加载时间的方法
+- 图片懒加载实现及兼容方案 🔴
+- 长列表图片延迟加载 + 防抖优化（新增）
+- 虚拟列表实现原理 🔴
+- 虚拟列表性能问题如何发现和排查？
+- 前缀高度表 + 二分查找在虚拟列表中的作用
+- 虚拟列表 + 动态高度计算（新增）
+- 如何评判网页性能是否合格？（LCP、FID、CLS 等 Web Vitals）🔴
+- FCP 如何计算、如何采集统计（新增）
+- 首屏优化策略 🔴
+- SPA 应用白屏优化
+- CDN 详细说明（新增）
+- 大文件上传优化
+- 大图加载优化（新增）
+- 内存泄漏排查
+- JS 长任务优化
+- 代码分割、请求合并、数据缓存
+- React 组件性能分析与优化
+
+## 四、框架：Vue 与 React
+
+### 4.1 Vue
+
+- Vue2 和 Vue3 响应式原理深度对比 🔴
+- Vue2/Vue3 各自优缺点（新增）
+- 什么时候用 Vue2，什么时候用 Vue3（新增）
+- 为什么 Vue3 还要进行重写？
+- 为什么 ref 需要 `.value`，而 reactive 不需要？
+- 如何处理 reactive 复杂对象重新赋值？
+- Vue3 中 Proxy 的核心缺陷？
+- Proxy 相对 Object.defineProperty 的优点、Proxy 的局限性
+- Vue2 和 Vue3 虚拟 DOM 区别
+- Vue 组件通信方式 🔴
+- 兄弟组件通信的前提
+- Vue Router 路由守卫
+- Vuex 和 Pinia 区别
+- 为什么选择 Pinia 进行状态管理（新增）
+- Vue3 组合式 API vs Vue2 Options API
+- Vue 生命周期有哪些？为什么要设计这些生命周期？（新增）
+- Vue 有哪些指令（v-if/v-show/v-for/v-bind/v-on/v-model 等）
+- v-if 和 v-for 优先级区别及调整原因（Vue2 中 v-for 更高，Vue3 中 v-if 更高）（新增）
+- Vue 计算属性的原理（新增）
+- watch 怎么实现的（新增）
+- watch 和 computed 的区别（新增）
+- Promise 和 setup 哪个先执行（setup 先执行）（新增）
+- Vue diff 算法及 key 的作用 🔴
+- Vue 中 key 的作用详解
+- v-if vs v-show 选型场景
+- keep-alive 的作用与原理
+- nextTick 的作用
+- Vue 白屏问题及解决
+- components、utils、hooks 的区别与划分依据（新增）
+
+### 4.2 React
+
+- React 框架理解 🔴
+- React 的优缺点（虚拟 DOM、Fiber、diff、JSX、生态）（新增）
+- React vs Vue 区别 🔴
+- Reconciler 如何遍历 Fiber 树
+- DOM 树和 Fiber 树的区别
+- React 时间分片
+- React 为什么用 Message Channel 调度
+- React Fiber 架构及原理 🔴
+- React 合成事件 🔴
+- React 事件委托（16 之后的变化）（新增）
+- React 组件内 onClick 与 document.addEventListener 谁先触发？（新增）
+- React Hooks 常用 API 🔴
+- useEffect 与 useLayoutEffect 区别 🔴（新增）
+- useEffect 执行时机、依赖数组、清理函数、内存泄漏（新增）
+- useState 是同步还是异步执行（新增）
+- React Hooks 链表结构设计原因（新增）
+- 为什么 Hook 不能写到条件语句（新增）
+- React 任务调度与优先级（新增）
+- React 响应式理解
+- 高阶组件（HOC）
+- Redux 有什么特别的地方
+- Zustand 与 Redux 区别（新增）
+- React 单标签原理（JSX 要求单一根元素，或使用 Fragment）
+- React 性能优化策略 🔴
+- useState 特性和优势
+- setState 执行机制
+- useRef 和 useState 区别
+- 受控组件和非受控组件
+- 可复用表单组件设计
+- JavaScript 是不是单线程的语言
+
+## 五、工程化与构建工具
+
+### 5.1 构建工具与模块系统
+
+- Webpack 与 Vite 的核心区别 🔴
+- Vite 为什么比 Webpack 快（开发环境 ESM 按需编译、HMR 实现）（新增）
+- Webpack 能否配置成使用 ES Module（新增）
+- Vite 打包用的什么（Rollup）
+- Vite HMR 实现原理（新增）
+- ESM 和 CJS 区别 🔴
+- ESM 和 CJS 在 Tree Shaking 上的差异（新增）
+- Tree-shaking 的执行原理 🔴
+- Tree Shaking 在 CJS 有什么限制（新增）
+- Tree Shaking 在哪个阶段进行（新增）
+- Webpack 构建流程
+- Webpack loader 和 plugin 的区别
+- 代码分割思路
+- 按需加载（新增）
+- chunk 命名含义（新增）
+- 项目中的静态资源处理方式
+- 项目中的图片压缩方法
+- ES6 向 ES5 转换（Babel 原理）
+
+### 5.2 架构与工程组织
+
+- 模块联邦架构
+- 微前端隔离及通信
+- Monorepo 架构实现（底层逻辑架构、大仓与单层单体对比）（新增）
+- Monorepo 和微前端是不是同一个东西？区别是什么？（新增）
+- 业界主流大仓、模块化工程方案（新增）
+- 微前端解决什么痛点、适用场景与优缺点、常见框架（新增）
+- 技术选型
+- sass、less、Tailwind CSS 区别（新增）
+- npm、pnpm 区别（新增）
+
+### 5.3 TypeScript 与高性能能力
+
+- TypeScript 泛型 🔴
+- TypeScript 高级类型（Record、Partial、Pick）
+- TypeScript interface 与 type 区别（新增）
+- TS 元组特点（新增）
+- TS 防御性编程（新增）
+- 如何获取函数入参类型（Parameters）（新增）
+- TypeScript 枚举本质上是什么
+- WebWorker 使用 🔴
+- WebAssembly 了解 🔴
+
+### 5.4 AI 辅助开发规范
+
+- SDD、spec coding
+- AGENTS.md 与 README 区别
+- 如何让 AI 遵守项目规范
+- SDD + TDD 开发新组件的完整流程（新增）
+- Story 文档覆盖度保障（新增）
+- 组件文档 Skills、MCP、llm.txt 三者的关系（新增）
+- MCP 怎么解决组件库版本号问题（新增）
+
+## 六、网络与通信
+
+### 6.1 HTTP、TCP 与 HTTPS
+
+- HTTP1.1 和 HTTP2.0 区别 🔴
+- HTTP/1、HTTP/1.1、HTTP/2、HTTP/3 的演进与优化目标 🔴
+- HTTP2 多路复用底层原理（如何在一条链路中区分不同请求的数据包）（新增）
+- HTTP2 头部压缩（新增）
+- HTTP/3 核心特性（QUIC 协议，基于 UDP）
+- QUIC 协议优势
+- TCP 和 UDP 区别 🔴
+- UDP 如何保证可靠通讯
+- TCP 可靠传输实现
+- TCP 三次握手四次挥手
+- HTTP 请求流程 🔴
+- ajax 底层原理
+- HTTP 请求报文 Content-Type 常见字段
+- 纯手写 HTTP 服务器
+- HTTPS 优势 🔴
+- HTTPS 实现原理（非对称加密 + 对称加密结合）
+- TLS 证书能劫持 HTTPS 通信吗
+
+### 6.2 跨域、缓存与 Cookie
+
+- 跨域原因及解决方案 🔴
+- 强缓存 vs 协商缓存 🔴
+- 强缓存与协商缓存配置的 HTTP 字段（新增）
+- 如何在浏览器查看资源是否命中缓存（新增）
+- 缓存过期机制
+- Cookie 属性（SameSite、HttpOnly 等）（新增）
+- JS 可以获取 Cookie 吗（新增）
+- Cookie 有效期后端如何使其无效（新增）
+
+### 6.3 实时通信与请求控制
+
+- SSE vs WebSocket 深度对比 🔴
+- SSE vs Axios 在 HTTP 上的区别
+- SSE vs 长短轮询（新增）
+- SSE 数据格式
+- SSE 连接机制与断线重连
+- SSE 中断和取消怎么做的（新增）
+- SSE 断掉后如何保证继续
+- SSE 渲染性能优化（新增）
+- WebSocket 心跳包字段设计 🔴
+- WebSocket 重连逻辑会执行几次
+- WebSocket 连接不稳定问题处理
+- 撤回功能：HTTP 还是 WebSocket？
+- WebSocket 全双工通信实现
+- 码率自适应调整实现
+- 中止 fetch 请求的设计（AbortController）
+- 请求缓存（SWR）的应用场景
+- 流式响应与非流式响应的区别
+- 大模型返回中断处理（断点续传/重连）
+- 批量请求与缓存策略（新增）
+
+### 6.4 跨页面通信与本地持久化
+
+- 跨页面通信方案（LocalStorage 轮询、postMessage、Service Worker）🔴（新增）
+- LocalStorage 实现页面间心跳检测（新增）
+- 本地持久化机制实现（LRU 存储结构、删除逻辑）
+
+### 6.5 AI 通信场景
+
+- RAG（检索增强生成）🔴
+- 向量数据库
+- 前端 AI 实时补全实现
+- AI sandbox 的作用
+- 上下文摘要压缩机制的实现思路（新增）
+
+## 七、AI 工程化与 Prompt 工程
+
+### 7.1 Prompt、模型与 RAG
+
+- Prompt Engineering 理解 🔴
+- Prompt 设计原则与结构化方法（新增）
+- 如何优化 Prompt Engineering 以减少 Token 消耗
+- 向量数据库切片策略（切片大小设计、语义切分 vs token 切分）（新增）
+- 大模型上下文长度与压缩技术（新增）
+- Prompt Injection 攻击防范
+- Function Calling 原理
+- 向量数据库在前端的应用
+- llm 运行过程了解
+- Transformer 原理了解
+- RAG 技术理解与融入 AI Agent（新增）
+
+### 7.2 AI 产品与前端工程
+
+- AI 组件库设计（AIUIKit）
+- AI 内容持久化与多端同步
+- AI 场景性能监控指标
+- AI 接口重试机制设计
+- AI 取代程序员观点
+- 国际化翻译缓存优化
+
+### 7.3 Agent、MCP 与上下文工程
+
+- MCP 和 Skill 的原理 🔴
+- Skills、MCP、CLI 三者区别与优缺点（新增）
+- ReAct 模式（AI 代理推理-行动循环）（新增）
+- 状态机在 AI 场景的应用（语音输入等）（新增）
+- agent 范式有哪些、差别、应用场景（新增）
+- 驱动工程（Agent 工程）（新增）
+- 上下文工程（新增）
+- 多 agent/team 模式（新增）
+- 限速工程（新增）
+- Harness Engineering 理解（新增）
+- LangChain 在 AI Agent 中的核心作用（新增）
+
+### 7.4 稳定性、消息队列与可观测性
+
+- RabbitMQ 等消息队列选型考量（新增）
+- 任务幂等性设计与实现（新增）
+- 指数退避重试机制（新增）
+- 大模型超时/宕机/响应异常的降级兜底逻辑（新增）
+- 消息积压、丢失的排查与解决（新增）
+- P95/P99 分位值监控（新增）
+- AI Agent 项目落地全流程（开发 → 测试 → 上线 → 运维）（新增）
+
+## 八、项目实战与场景题
+
+### 8.1 组件、交互与跨端设计
+
+- SDD + TDD 开发新组件的完整流程（新增）
+- 组件文档 Skills、MCP、llm.txt 三者的关系（新增）
+- 逻辑层与 UI 层分离的具体实现（新增）
+- 工厂函数运行时性能损耗（新增）
+- 核心 Hook 入参在 PC/移动端类型不同（MouseEvent vs TouchEvent）（新增）
+- 图片预览缩放拖拽手势实现（新增）
+- 预览 50M 大图片第一次加载慢优化（新增）
+- 财务系统高保密场景 ImageViewer 安全功能扩展（新增）
+- 复杂表单状态管理与校验
+- 实时文本编辑同步策略
+- 设计组件时如何考虑通用性和扩展性
+- 项目中树形目录编辑组件拖拉拽效果
+- 无限层级文件夹管理的懒加载
+- 抽奖圆盘实现
+- 文本收起展开效果
+- 可复用表单组件设计步骤
+- 公式编辑器测量和布局工作
+
+### 8.2 登录、鉴权与权限
+
+- 页面模板系统 SSO 完整鉴权流程（新增）
+- 多个接口同时触发 401，避免重复刷新 token（新增）
+- iframe 静默刷新 token 解决什么问题（新增）
+- Context 失效的常见场景（新增）
+- 登录页面实现
+- 双 Token 实现 + 自动续期 + 无感刷新
+- 无感刷新下请求队列问题（分页错乱 bug 解决）
+- 用户认证实现
+- 权限设计
+- 项目中的登录鉴权怎么做？
+
+### 8.3 项目架构与工程实践
+
+- 实习项目的架构是怎样的？
+- 项目的构建流程
+- i18n（国际化）怎么设计的？
+- 国际化 + 后端翻译缓存优化
+- SSR 和 ISR 的区别
+- AI coding 工具使用情况
+- 项目完整的构建流程
+- 项目中的静态资源处理方式
+- 项目中的图片压缩方法
+- 集中式错误处理
+
+### 8.4 大文件上传与资源优化
+
+- 秒传、断点续传的实现原理 🔴
+- 大文件分片上传（Blob.slice API）🔴
+- 大文件分片上传完整流程（新增）
+- 计算文件 MD5 耗时与优化方案（新增）
+- 服务端分片管理设计（避免空间浪费）（新增）
+- 秒传基于完整文件 hash 还是分片 hash（新增）
+
+### 8.5 数据结构、算法与设计模式
+
+- 设计模式：单例模式、工厂模式、观察者模式 🔴
+- 排序算法：归并排序、快速排序、Top K
+- 数组与链表底层存储和缓存差异（新增）
+- 100 人 1 个病毒、2 张试纸最少检测次数（新增）
+
+### 8.6 项目复盘与团队协作
+
+- 项目难点亮点介绍
+- 实习收获与成长
+- 埋点实现（曝光埋点）
+- 语音转文字应用场景
+- 团队协作问题解决
+- 技术学习路径和方法
+- Git 协作流程与冲突解决
+
+## 九、操作系统与计算机基础
+
+### 9.1 进程、线程与硬件
+
+- 线程和进程的区别
+- 浏览器的线程进程有哪些
+- CPU 和 GPU 区别
+- 内核态和用户态
+- 进程通信方式
+
+### 9.2 程序、内存与底层原理
+
+- 从代码到程序运行过程
+- 静态链接
+- 内存寻址
+- JS 内存管理（新生代/老年代）
+- C++ 如何实现闭包
+- C 函数调用栈处理
+- 汇编语言了解（RISC-V）
+
+## 十、Next.js 与服务端渲染
+
+### 10.1 渲染模式
+
+- Next.js 渲染模式
+- SSR/ISR/SSG 对比
+
+### 10.2 图片优化
+
+- Next.js 图片优化组件
+- WebP 兼容及降级处理
+- WebP 与 PNG、JPG 图片格式区别（新增）
+
+## 十一、Node.js
+
+### 11.1 运行时与模块
+
+- 任务循环在浏览器和 Node 的区别
+- import 与 require 的区别
+- ESM 和 CJS 区别 🔴
+- TypeScript 枚举本质上是什么
+
+### 11.2 服务端与中间件
+
+- Node 中间件、洋葱模型（新增）
+- 纯手写 HTTP 服务器
+
+### 11.3 稳定性与基础设施
+
+- RabbitMQ 等消息队列选型考量（新增）
+- 任务幂等性设计与实现（新增）
+- 指数退避重试机制（新增）
+- 消息积压、丢失的排查与解决（新增）
+
+## 十二、存储与缓存
+
+### 12.1 浏览器存储
+
+- localStorage、sessionStorage、cookie 的区别 🔴
+- SessionStorage 和 LocalStorage 的区别（新增）
+- localStorage 存储上限 4MB，存满解决方案（LRU、IndexedDB）
+- 什么时候用 localStorage，什么时候用 IndexedDB（新增）
+- IndexedDB 特点（新增）
+- cookie 过期时间设置
+- sessionStorage 刷新后数据是否存在（存在）
+
+### 12.2 缓存策略
+
+- 强缓存与协商缓存 🔴
+- 缓存过期机制
+- 请求缓存（SWR）的应用场景
+- 本地持久化机制实现（LRU 存储结构、删除逻辑）
