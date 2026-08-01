@@ -36,6 +36,9 @@ describe("note content", () => {
         }),
       ]),
     );
+    expect(developmentNotes.map((note) => note.slug)).not.toContain(
+      "interviews/private-interview",
+    );
   });
 
   it("returns nested note content by slug segments", async () => {

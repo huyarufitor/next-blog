@@ -334,6 +334,17 @@ input {
   color: var(--text-muted);
 }
 
+.interview-reader .anchor-link {
+  float: right;
+}
+
+.interview-reader .post-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .section-heading {
     align-items: start;

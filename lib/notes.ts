@@ -45,7 +45,10 @@ function extractToc(source: string): TocEntry[] {
   }));
 }
 
-async function listMarkdownFiles(directory: string): Promise<string[]> {
+async function listMarkdownFiles(
+  directory: string,
+  excludedDirectories = new Set<string>(),
+): Promise<string[]> {
   let entries: Dirent[];
 
   try {
@@ -59,7 +62,10 @@ async function listMarkdownFiles(directory: string): Promise<string[]> {
     entries.map(async (entry) => {
       const entryPath = path.join(directory, entry.name);
 
-      if (entry.isDirectory()) return listMarkdownFiles(entryPath);
+      if (entry.isDirectory()) {
+        if (excludedDirectories.has(entry.name)) return [];
+        return listMarkdownFiles(entryPath, excludedDirectories);
+      }
       if (entry.isFile() && /\.mdx?$/.test(entry.name)) return [entryPath];
       return [];
     }),
@@ -79,8 +85,9 @@ function filePathToSlug(filePath: string, rootDirectory: string) {
 async function readNotesFromDirectory(
   directory: string,
   visibility: NoteVisibility,
+  excludedDirectories?: Set<string>,
 ): Promise<Note[]> {
-  const files = await listMarkdownFiles(directory);
+  const files = await listMarkdownFiles(directory, excludedDirectories);
 
   return Promise.all(
     files.map(async (filePath) => {
@@ -106,7 +113,13 @@ export async function getAllNotes(options: NoteQueryOptions = {}): Promise<NoteS
   const notes = await readNotesFromDirectory(publicDirectory, "public");
 
   if (includeLocal) {
-    notes.push(...(await readNotesFromDirectory(localDirectory, "local")));
+    notes.push(
+      ...(await readNotesFromDirectory(
+        localDirectory,
+        "local",
+        new Set(["interviews"]),
+      )),
+    );
   }
 
   return notes
@@ -133,7 +146,13 @@ export async function getNoteBySlug(
   const notes = await readNotesFromDirectory(publicDirectory, "public");
 
   if (includeLocal) {
-    notes.push(...(await readNotesFromDirectory(localDirectory, "local")));
+    notes.push(
+      ...(await readNotesFromDirectory(
+        localDirectory,
+        "local",
+        new Set(["interviews"]),
+      )),
+    );
   }
 
   return notes.find((note) => note.slug === slug) ?? null;
