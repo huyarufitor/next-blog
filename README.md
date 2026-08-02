@@ -36,7 +36,7 @@ category: "技术实践"
 tags:
   - "架构"
   - "前端"
-cover: "/images/posts/article-cover.png"
+cover: "/images/posts/blog-foundation.png"
 draft: false
 ---
 
@@ -47,7 +47,7 @@ draft: false
 
 推荐直接复制 [content/post-template.mdx](/Users/fitor/Documents/web-demo/content/post-template.mdx) 作为新文章起点。
 
-`title`、`date`、`summary`、`category` 和 `tags` 为核心字段；`draft` 可省略，默认为 `false`。`category` 目前使用固定集合：
+`title`、`date`、`summary`、`category`、`tags` 和 `cover` 为必填字段；`draft` 可省略，默认为 `false`。`category` 目前使用固定集合：
 
 - `技术实践`
 - `工作手记`
@@ -55,7 +55,7 @@ draft: false
 - `生活切片`
 - `人生思考`
 
-`cover` 可省略；当前演示封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。也可以把 `cover` 指向 `public` 下的静态图片。
+每篇文章都必须配置与主题相关的 16:9 封面。上例路径仅展示已注册封面的格式，新文章不得直接复用无关封面。当前封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。完整要求见 [博客文章发布规范](./docs/plans/article-publishing-standards.md)。
 
 ## 知识库与本地笔记
 

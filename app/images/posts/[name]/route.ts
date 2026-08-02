@@ -1,7 +1,7 @@
 import { createElement, type CSSProperties, type ReactNode } from "react";
 import { ImageResponse } from "next/og";
 
-import { getCoverDefinition } from "@/lib/covers";
+import { getCoverDefinition, type CoverTheme } from "@/lib/covers";
 
 type CoverRouteContext = {
   params: Promise<{
@@ -1127,6 +1127,181 @@ function renderInterviewEvidence() {
   );
 }
 
+function renderAiFullStack() {
+  const nodes = [
+    { left: 104, top: 118, size: 116, color: "#52d6c7", shape: "circle" },
+    { left: 154, top: 430, size: 126, color: "#f1c84c", shape: "square" },
+    { left: 924, top: 112, size: 132, color: "#ff725e", shape: "square" },
+    { left: 946, top: 430, size: 112, color: "#a9df62", shape: "circle" },
+  ];
+
+  const connectors = [
+    { left: 200, top: 181, width: 330, rotate: 20, color: "#52d6c7" },
+    { left: 252, top: 453, width: 300, rotate: -20, color: "#f1c84c" },
+    { left: 674, top: 296, width: 310, rotate: -22, color: "#ff725e" },
+    { left: 672, top: 368, width: 320, rotate: 20, color: "#a9df62" },
+  ].map((connector, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: connector.left,
+        top: connector.top,
+        width: connector.width,
+        height: 5,
+        borderRadius: 3,
+        background: connector.color,
+        transform: `rotate(${connector.rotate}deg)`,
+        transformOrigin: "left center",
+      },
+      undefined,
+      `ai-connector-${index}`,
+    ),
+  );
+
+  return panel(
+    {
+      position: "relative",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background: "#101b1d",
+    },
+    [
+      ...Array.from({ length: 8 }, (_, index) =>
+        panel(
+          {
+            position: "absolute",
+            left: 72 + index * 152,
+            top: 0,
+            width: 1,
+            height: "100%",
+            background: "#244044",
+          },
+          undefined,
+          `ai-grid-${index}`,
+        ),
+      ),
+      ...connectors,
+      ...nodes.map((node, index) =>
+        panel(
+          {
+            position: "absolute",
+            display: "flex",
+            left: node.left,
+            top: node.top,
+            width: node.size,
+            height: node.size,
+            borderRadius: node.shape === "circle" ? node.size / 2 : 8,
+            border: "5px solid #071011",
+            background: node.color,
+            boxShadow: "10px 10px 0 #071011",
+          },
+          [
+            panel(
+              {
+                position: "absolute",
+                left: node.size * 0.27,
+                top: node.size * 0.27,
+                width: node.size * 0.46,
+                height: node.size * 0.46,
+                border: "5px solid #071011",
+                borderRadius: index % 2 === 0 ? 4 : node.size,
+              },
+              undefined,
+              `ai-node-core-${index}`,
+            ),
+          ],
+          `ai-node-${index}`,
+        ),
+      ),
+      panel(
+        {
+          position: "absolute",
+          display: "flex",
+          left: 455,
+          top: 152,
+          width: 290,
+          height: 370,
+          border: "6px solid #071011",
+          borderRadius: 12,
+          background: "#e9eee7",
+          boxShadow: "18px 18px 0 #071011",
+        },
+        [
+          panel({ position: "absolute", left: 54, top: 48, width: 182, height: 182, borderRadius: 91, border: "18px solid #3068e8" }, undefined, "ai-ring"),
+          panel({ position: "absolute", left: 115, top: 109, width: 60, height: 60, borderRadius: 8, background: "#ff725e", transform: "rotate(45deg)" }, undefined, "ai-core"),
+          ...Array.from({ length: 5 }, (_, index) =>
+            panel({ position: "absolute", left: 48 + index * 40, bottom: 62, width: 24, height: 24 + index * 10, background: index % 2 === 0 ? "#52d6c7" : "#f1c84c" }, undefined, `ai-meter-${index}`),
+          ),
+        ],
+        "ai-mainframe",
+      ),
+    ],
+  );
+}
+
+function renderEventThrottle() {
+  const pulses = Array.from({ length: 11 }, (_, index) => {
+    const allowed = index % 3 === 0;
+    return panel(
+      {
+        position: "absolute",
+        left: 104 + index * 88,
+        top: allowed ? 245 : 318,
+        width: allowed ? 24 : 12,
+        height: allowed ? 190 : 92,
+        borderRadius: 6,
+        background: allowed ? "#e8533f" : "#273238",
+      },
+      undefined,
+      `throttle-pulse-${index}`,
+    );
+  });
+
+  return panel(
+    {
+      position: "relative",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background: "#f1eee6",
+    },
+    [
+      ...Array.from({ length: 6 }, (_, index) =>
+        panel({ position: "absolute", left: 70, top: 90 + index * 92, width: 1060, height: 1, background: "#d2cbbb" }, undefined, `throttle-guide-${index}`),
+      ),
+      ...[0, 1, 2, 3].map((index) =>
+        panel({ position: "absolute", left: 78 + index * 264, top: 218, width: 232, height: 244, border: "3px solid #69b8ad", borderRadius: 8, background: index % 2 === 0 ? "#dceae5" : "#f7d968", opacity: 0.55 }, undefined, `throttle-window-${index}`),
+      ),
+      panel({ position: "absolute", left: 74, right: 70, top: 421, height: 8, borderRadius: 4, background: "#101718" }, undefined, "throttle-baseline"),
+      ...pulses,
+      panel(
+        { position: "absolute", display: "flex", right: 78, top: 50, width: 178, height: 178, borderRadius: 89, border: "12px solid #3068e8", background: "#fffdf7", boxShadow: "10px 10px 0 #101718" },
+        [
+          panel({ position: "absolute", left: 78, top: 28, width: 8, height: 58, borderRadius: 4, background: "#101718", transform: "rotate(18deg)", transformOrigin: "bottom center" }, undefined, "clock-hour"),
+          panel({ position: "absolute", left: 79, top: 80, width: 55, height: 8, borderRadius: 4, background: "#e8533f", transform: "rotate(-28deg)", transformOrigin: "left center" }, undefined, "clock-minute"),
+          panel({ position: "absolute", left: 72, top: 72, width: 20, height: 20, borderRadius: 10, background: "#101718" }, undefined, "clock-center"),
+        ],
+        "throttle-clock",
+      ),
+      panel({ position: "absolute", left: 76, top: 62, width: 310, height: 42, background: "#101718" }, undefined, "throttle-title-block"),
+      panel({ position: "absolute", left: 76, top: 128, width: 194, height: 18, background: "#e8533f" }, undefined, "throttle-accent-block"),
+    ],
+  );
+}
+
+const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
+  "warm-architecture": renderWarmArchitecture,
+  "signal-systems": renderSignalSystems,
+  "dependency-flow": renderDependencyFlow,
+  "knowledge-map": renderKnowledgeMap,
+  "interview-evidence": renderInterviewEvidence,
+  "ai-full-stack": renderAiFullStack,
+  "event-throttle": renderEventThrottle,
+};
+
 export async function GET(
   _request: Request,
   { params }: CoverRouteContext,
@@ -1138,16 +1313,7 @@ export async function GET(
     return new Response("Not Found", { status: 404 });
   }
 
-  const artwork =
-    cover.theme === "warm-architecture"
-      ? renderWarmArchitecture()
-      : cover.theme === "signal-systems"
-        ? renderSignalSystems()
-        : cover.theme === "dependency-flow"
-          ? renderDependencyFlow()
-          : cover.theme === "knowledge-map"
-            ? renderKnowledgeMap()
-            : renderInterviewEvidence();
+  const artwork = coverRenderers[cover.theme]();
 
   return new ImageResponse(artwork, {
     ...imageSize,

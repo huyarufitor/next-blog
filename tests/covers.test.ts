@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { PostCover } from "@/components/post/post-cover";
 import { PostCard } from "@/components/post/post-card";
 import { GET } from "@/app/images/posts/[name]/route";
-import { getCoverDefinition } from "@/lib/covers";
+import { getAllCoverDefinitions, getCoverDefinition } from "@/lib/covers";
 
 describe("getCoverDefinition", () => {
   it("maps the blog foundation cover to its warm architecture theme", () => {
@@ -41,6 +41,22 @@ describe("getCoverDefinition", () => {
       title:
         "看了 40+份中高级前端简历后，我整理了这套能问出真实水平的面试题",
       theme: "interview-evidence",
+    });
+  });
+
+  it("maps the AI full-stack question bank to its AI systems theme", () => {
+    expect(
+      getCoverDefinition("2026-ai-full-stack-frontend-interview-questions.png"),
+    ).toMatchObject({
+      name: "2026-ai-full-stack-frontend-interview-questions.png",
+      theme: "ai-full-stack",
+    });
+  });
+
+  it("maps the JavaScript throttle article to its timing theme", () => {
+    expect(getCoverDefinition("javascript-throttle.png")).toMatchObject({
+      name: "javascript-throttle.png",
+      theme: "event-throttle",
     });
   });
 
@@ -90,12 +106,7 @@ describe("PostCover", () => {
 });
 
 describe("post cover image route", () => {
-  it.each([
-    "blog-foundation.png",
-    "static-first.png",
-    "complete-frontend-question-bank.png",
-    "interviewer-evidence-chain.png",
-  ])(
+  it.each(getAllCoverDefinitions().map((cover) => cover.name))(
     "returns a complete PNG body for %s",
     async (name) => {
     const response = await GET(new Request("http://localhost"), {
@@ -109,6 +120,9 @@ describe("post cover image route", () => {
       0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
     ]);
     expect(body.byteLength).toBeGreaterThan(1_000);
+    const imageHeader = new DataView(body.buffer, body.byteOffset, body.byteLength);
+    expect(imageHeader.getUint32(16)).toBe(1200);
+    expect(imageHeader.getUint32(20)).toBe(675);
     expect(response.headers.get("cache-control")).toBe(
       "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
     );

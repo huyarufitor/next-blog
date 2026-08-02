@@ -18,3 +18,7 @@
 ## 发布方式
 
 文章写入 `content/posts/2026-ai-full-stack-frontend-interview-questions.mdx`，使用现有博客 frontmatter，初始设置 `draft: true`，待答案补齐和人工复核后再发布。
+
+## 封面设计
+
+文章必须配置独立的 16:9 封面。封面复用仓库现有 `ImageResponse` 动态图片路由，以 AI 核心、前端界面、服务端和数据节点组成全栈知识网络，不依赖标题文字表达主题。封面路径为 `/images/posts/2026-ai-full-stack-frontend-interview-questions.png`。

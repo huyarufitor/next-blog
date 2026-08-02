@@ -14,10 +14,13 @@
 
 **Files:**
 - Create: `content/posts/2026-ai-full-stack-frontend-interview-questions.mdx`
+- Modify: `lib/covers.ts`
+- Modify: `app/images/posts/[name]/route.ts`
 
-1. 添加标题、日期、摘要、分类、标签和 `draft: true`。
-2. 按设计文档建立领域与专题目录。
-3. 将附件题目完整整理到对应专题，不新增答案。
+1. 添加标题、日期、摘要、分类、标签、封面和 `draft: true`。
+2. 注册并实现 1200×675 的独立动态封面主题。
+3. 按设计文档建立领域与专题目录。
+4. 将附件题目完整整理到对应专题，不新增答案。
 
 ### Task 2: 检查内容结构
 
@@ -27,6 +30,7 @@
 1. 检查 frontmatter 是否可解析。
 2. 检查一级领域、二级专题和题目列表是否完整。
 3. 对照原附件检查题目数量，确认无意外遗漏。
+4. 请求封面路径，确认返回有效 PNG，并检查首页卡片和文章页的 16:9 构图。
 
 ### Task 3: 运行项目验证
 

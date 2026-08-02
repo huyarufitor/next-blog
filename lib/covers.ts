@@ -3,7 +3,9 @@ export type CoverTheme =
   | "signal-systems"
   | "dependency-flow"
   | "knowledge-map"
-  | "interview-evidence";
+  | "interview-evidence"
+  | "ai-full-stack"
+  | "event-throttle";
 
 export type CoverDefinition = {
   name: string;
@@ -54,8 +56,28 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       theme: "interview-evidence",
     },
   ],
+  [
+    "2026-ai-full-stack-frontend-interview-questions.png",
+    {
+      name: "2026-ai-full-stack-frontend-interview-questions.png",
+      title: "2026 年，AI 全栈时代到了，前端面试题你该会的还是要会",
+      theme: "ai-full-stack",
+    },
+  ],
+  [
+    "javascript-throttle.png",
+    {
+      name: "javascript-throttle.png",
+      title: "节流",
+      theme: "event-throttle",
+    },
+  ],
 ]);
 
 export function getCoverDefinition(name: string) {
   return coverDefinitions.get(name) ?? null;
+}
+
+export function getAllCoverDefinitions() {
+  return [...coverDefinitions.values()];
 }

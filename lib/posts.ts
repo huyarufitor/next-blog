@@ -61,8 +61,12 @@ const frontmatterSchema = z.object({
   category: z.enum(categoryNames),
   tags: z.array(z.string()).default([]),
   draft: z.boolean().optional().default(false),
-  cover: z.string().optional(),
+  cover: z.string().regex(/^\/images\/posts\/.+\.png$/),
 });
+
+export function parsePostFrontmatter(data: unknown) {
+  return frontmatterSchema.parse(data);
+}
 
 function normalizeTag(tag: string) {
   return new GithubSlugger().slug(tag);
@@ -112,7 +116,7 @@ function sortPosts(posts: PostSummary[]) {
 
 function toSummary(slug: string, source: string): Post {
   const { data, content } = matter(source);
-  const frontmatter = frontmatterSchema.parse(data);
+  const frontmatter = parsePostFrontmatter(data);
   const category = getCategoryByName(frontmatter.category);
   const tags = frontmatter.tags.map((tag) => ({
     name: tag,

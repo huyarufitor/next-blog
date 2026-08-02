@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 
+import { getCoverDefinition } from "@/lib/covers";
 import {
   formatPostDate,
   formatReadingTime,
+  getAllPosts,
   getCategorySummaries,
   getPostsByCategory,
   getPostYear,
+  parsePostFrontmatter,
 } from "@/lib/posts";
 
 describe("formatPostDate", () => {
@@ -63,5 +66,31 @@ describe("category queries", () => {
 
     expect(posts).toHaveLength(5);
     expect(posts.every((post) => post.category.slug === "technical-practice")).toBe(true);
+  });
+});
+
+describe("post covers", () => {
+  it("rejects frontmatter that omits the cover", () => {
+    expect(() =>
+      parsePostFrontmatter({
+        title: "缺少封面的文章",
+        date: "2026-08-02",
+        summary: "用于验证封面必填约束。",
+        category: "技术实践",
+        tags: [],
+      }),
+    ).toThrow();
+  });
+
+  it("requires every post, including drafts, to define a site-local cover", async () => {
+    const posts = await getAllPosts({ includeDrafts: true });
+
+    expect(posts.length).toBeGreaterThan(0);
+    expect(posts.every((post) => /^\/images\/posts\/.+\.png$/.test(post.cover))).toBe(
+      true,
+    );
+    expect(
+      posts.every((post) => getCoverDefinition(post.cover.split("/").at(-1) ?? "")),
+    ).toBe(true);
   });
 });
