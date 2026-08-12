@@ -1,0 +1,16 @@
+{
+  "sourceRoot": "/Users/fitor/Documents/Projects/githubPro/vuepress-starter/docs",
+  "entries": [
+    {
+      "source": "javascript/es6/throttle.md",
+      "target": "note",
+      "destination": "javascript/throttle.md",
+      "metadata": {
+        "summary": "记录基于时间戳和定时器实现 JavaScript 节流函数的基础思路。",
+        "section": "JavaScript",
+        "tags": ["JavaScript", "性能优化"],
+        "updated": "2023-01-09"
+      }
+    }
+  ]
+}

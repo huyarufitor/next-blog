@@ -39,7 +39,8 @@ export type InspectionIssue = {
     | "vuepress-container"
     | "vue-component"
     | "relative-asset"
-    | "mdx-angle-bracket";
+    | "mdx-angle-bracket"
+    | "suspected-secret";
   message: string;
 };
 
@@ -114,6 +115,19 @@ export function inspectMarkdown(source: string) {
     issues.push({
       code: "mdx-angle-bracket",
       message: "Angle-bracket placeholders outside code are parsed as MDX tags.",
+    });
+  }
+  const hasKnownSecretPrefix = /\b(?:figd|gh[opsu]|github_pat|sk-(?:proj-)?)[_-][A-Za-z\d_-]{16,}\b/.test(source);
+  const hasAssignedSecret =
+    /(?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password)\s*["']?\s*[:=]\s*["'][^"'\s]{16,}["']/i.test(
+      source,
+    );
+  const hasPrivateKey = /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(source);
+
+  if (hasKnownSecretPrefix || hasAssignedSecret || hasPrivateKey) {
+    issues.push({
+      code: "suspected-secret",
+      message: "A possible credential was found. Revoke it if real and remove it before migration.",
     });
   }
 

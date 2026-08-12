@@ -1,0 +1,4 @@
+interface:
+  display_name: "发布博客内容"
+  short_description: "检查、分类并安全发布栈间笔记中的博客文章和知识笔记"
+  default_prompt: "使用 $publish-blog-content 检查并发布这篇内容，应用项目内容政策并完成验证。"

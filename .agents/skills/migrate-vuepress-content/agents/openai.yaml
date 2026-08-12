@@ -1,0 +1,4 @@
+interface:
+  display_name: "迁移 VuePress 内容"
+  short_description: "安全盘点、审核并迁移旧 VuePress 仓库中的个人内容"
+  default_prompt: "使用 $migrate-vuepress-content 盘点并迁移指定内容，先 dry-run，再等待明确确认后写入。"

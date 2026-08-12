@@ -42,6 +42,28 @@ describe("VuePress migration inspection", () => {
     );
   });
 
+  it("blocks suspected secrets without returning the matched value", () => {
+    const secret = "figd_exampleTokenValueThatMustNeverAppearInReports";
+    const inspection = inspectMarkdown(
+      `# MCP 配置\n\n\`\`\`json\n{"FIGMA_API_KEY":"${secret}"}\n\`\`\``,
+    );
+
+    expect(inspection.issues).toContainEqual(
+      expect.objectContaining({ code: "suspected-secret" }),
+    );
+    expect(JSON.stringify(inspection)).not.toContain(secret);
+  });
+
+  it("does not treat ordinary security prose as a secret", () => {
+    const inspection = inspectMarkdown(
+      "# 环境变量\n\n请通过 FIGMA_API_KEY 环境变量传入令牌，不要提交真实值。",
+    );
+
+    expect(inspection.issues).not.toContainEqual(
+      expect.objectContaining({ code: "suspected-secret" }),
+    );
+  });
+
   it("builds a draft blog article with normalized frontmatter", () => {
     const source = buildMigratedSource("# 响应式原理\n\n正文", {
       source: "vue/reactivity.md",
