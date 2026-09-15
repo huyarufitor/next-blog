@@ -5,7 +5,8 @@ export type CoverTheme =
   | "knowledge-map"
   | "interview-evidence"
   | "ai-full-stack"
-  | "event-throttle";
+  | "event-throttle"
+  | "local-gateway";
 
 export type CoverDefinition = {
   name: string;
@@ -14,6 +15,14 @@ export type CoverDefinition = {
 };
 
 const coverDefinitions = new Map<string, CoverDefinition>([
+  [
+    "sub2api-local-gateway.png",
+    {
+      name: "sub2api-local-gateway.png",
+      title: "在 Mac 本地搭建 Sub2API：从 ChatGPT 授权到 API 转发",
+      theme: "local-gateway",
+    },
+  ],
   [
     "blog-foundation.png",
     {

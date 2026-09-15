@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Sub2API 本地转发链路示意</title>
+  <desc id="desc">客户端访问 localhost 8888，经 Docker 端口映射进入 Sub2API 的 8080 端口。网关使用上游授权访问 OpenAI，并连接 PostgreSQL 和 Redis。图中状态仅为结构示意。</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0L10 5L0 10" fill="none" stroke="#168779" stroke-width="2"/></marker></defs>
+  <rect width="1200" height="675" rx="24" fill="#f3f7f4"/>
+  <g font-family="system-ui, -apple-system, 'PingFang SC', sans-serif">
+    <text x="58" y="68" fill="#168779" font-size="18" letter-spacing="3">SUB2API / LOCAL SETUP</text>
+    <text x="58" y="125" fill="#142c32" font-size="38" font-weight="700">一次请求，经过三个位置</text>
+    <rect x="36" y="170" width="800" height="445" rx="20" fill="#e4efeb" stroke="#b8d5cd" stroke-width="2" stroke-dasharray="8 8"/>
+    <text x="60" y="206" fill="#50766f" font-size="18">你的 Mac · 本机入口仅绑定 127.0.0.1</text>
+    <rect x="64" y="257" width="260" height="190" rx="18" fill="#fff" stroke="#c5d9d3" stroke-width="2"/>
+    <text x="90" y="299" fill="#50766f" font-size="16">01 / CLIENT</text>
+    <text x="90" y="344" fill="#142c32" font-size="29" font-weight="650">客户端</text>
+    <text x="90" y="383" fill="#50766f" font-size="18">Base URL + Sub2API Key</text>
+    <text x="90" y="413" fill="#50766f" font-size="17">localhost:8888/v1</text>
+    <path d="M338 350H453" stroke="#168779" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="341" y="325" fill="#50766f" font-size="15">8888 → 8080</text>
+    <rect x="480" y="257" width="320" height="190" rx="18" fill="#123b3c"/>
+    <text x="506" y="299" fill="#8dddd0" font-size="16">02 / LOCAL GATEWAY</text>
+    <text x="506" y="344" fill="#fff" font-size="29" font-weight="650">Sub2API</text>
+    <text x="506" y="383" fill="#c8e9e1" font-size="18">鉴权 · OpenAI 分组 · 账号调度</text>
+    <text x="506" y="413" fill="#c8e9e1" font-size="17">Docker 容器 / 8080</text>
+    <path d="M811 350H870" stroke="#168779" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="895" y="257" width="270" height="190" rx="18" fill="#fff" stroke="#c5d9d3" stroke-width="2"/>
+    <text x="920" y="299" fill="#50766f" font-size="16">03 / UPSTREAM</text>
+    <text x="920" y="344" fill="#142c32" font-size="29" font-weight="650">上游模型服务</text>
+    <text x="920" y="383" fill="#50766f" font-size="18">OAuth / 上游 API Key</text>
+    <text x="920" y="413" fill="#50766f" font-size="17">仍需可用网络与账号权限</text>
+    <path d="M640 447V483M550 483H722M550 483V512M722 483V512" fill="none" stroke="#168779" stroke-width="2"/>
+    <rect x="466" y="514" width="164" height="54" rx="12" fill="#fff"/>
+    <rect x="649" y="514" width="151" height="54" rx="12" fill="#fff"/>
+    <text x="487" y="548" fill="#142c32" font-size="19">PostgreSQL</text>
+    <text x="697" y="548" fill="#142c32" font-size="19">Redis</text>
+    <text x="64" y="650" fill="#50766f" font-size="17">结构示意图 · 服务健康检查通过 ≠ 上游模型请求成功</text>
+  </g>
+</svg>

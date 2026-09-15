@@ -1,0 +1,623 @@
+---
+title: "在 Mac 本地搭建 Sub2API：从 ChatGPT 授权到 API 转发"
+date: "2026-09-15"
+summary: "图解 Mac 本地部署 Sub2API 的完整流程：创建 OpenAI 分组、Chrome 授权 ChatGPT 账号、绑定分组、新建用户与角色、生成 API Key，并通过 CC Switch 接入。"
+category: "技术实践"
+tags:
+  - "AI"
+  - "Sub2API"
+  - "Docker"
+  - "本地部署"
+cover: "/images/posts/sub2api-local-gateway.png"
+draft: false
+---
+
+我已经在自己的 Mac 上搭建了 Sub2API。这篇文章把部署文件、后台配置和客户端调用串起来，整理成一份可以逐步操作的本地教程。
+
+本文以 **Docker Compose、本机访问、OpenAI / ChatGPT 上游、CC Switch 接入** 为范围。实际环境的入口是 `http://localhost:8888`，容器内部监听 `8080`。本次使用 Chrome 中已登录并购买 ChatGPT Plus 的账号完成授权流程，随后配置独立的 Sub2API 用户和客户端。
+
+下文补充了这次配置的 8 张操作截图，覆盖分组、账号授权、用户和 CC Switch；内部命名、用户资料、余额及密钥区域已遮挡，部分空白区域已裁切。截图中的模型名称与数值反映当时的配置，不代表所有账号都具备相同权限。三个服务容器健康、页面可访问已经核实，完整模型调用仍应按最后的验证步骤检查。
+
+## 常用命令速查
+
+### 查看容器状态
+
+如果终端当前位于 **Sub2API 项目根目录**，执行：
+
+```bash
+docker compose -f deploy/docker-compose.local.yml ps
+```
+
+正常情况下，应看到以下三个容器处于 `running` / `Up` 状态，并在初始化完成后显示 `healthy`：
+
+```text
+sub2api
+sub2api-postgres
+sub2api-redis
+```
+
+这里列的是容器名称；Compose 的服务名分别是 `sub2api`、`postgres` 和 `redis`。若仍显示 `starting`，等待初始化完成后再检查；若显示 `exited` 或 `unhealthy`，继续查看日志。
+
+### 实时查看 Sub2API 日志
+
+同样在 **项目根目录** 执行：
+
+```bash
+docker compose -f deploy/docker-compose.local.yml logs -f sub2api
+```
+
+`-f` 表示持续跟踪新日志，按 `Ctrl+C` 退出日志查看，不会停止容器。日志可能包含管理员密码或账号信息，查看时留在本机，不直接截图公开。
+
+如果已经进入 `deploy` 文件夹，命令中的文件路径要去掉前面的 `deploy/`：
+
+```bash
+docker compose -f docker-compose.local.yml ps
+docker compose -f docker-compose.local.yml logs -f sub2api
+```
+
+以上命令用于本文的 `local` 镜像部署。使用下面的源码构建流程时，应将文件名统一换成 `docker-compose.dev.yml`，避免查看或操作另一套容器。
+
+## 完整流程概览：从源码构建到本地访问
+
+除了本文详细演示的 `local` 镜像启动，也可以使用 `dev` 文件从下载的源码构建。完整流程如下：
+
+1. 安装并启动 Docker Desktop，等待 Docker 引擎就绪。
+2. 下载并解压 Sub2API 完整源码，保留项目根目录的 `Dockerfile` 和 `deploy` 文件夹。
+3. 进入源码中的 `deploy` 文件夹。
+4. 首次部署时按第三步创建 `.env`，配置数据库密码、管理员信息和固定密钥；统一使用 `BIND_HOST=127.0.0.1`、`SERVER_PORT=8888`。已有实例不要覆盖 `.env` 或重新生成密钥。
+5. 检查配置，然后执行 Docker 构建启动命令。
+6. 等待构建、数据库初始化和健康检查完成，打开 [http://127.0.0.1:8888](http://127.0.0.1:8888) 访问后台。
+7. 在后台配置 OpenAI 分组和上游账号，完成授权并绑定分组；再新建用户、配置角色、生成 API Key，最后配置客户端。
+
+**核心命令：在 `deploy` 文件夹中执行。**
+
+```bash
+docker compose -f docker-compose.dev.yml config --quiet
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+`--build` 会在启动前构建应用镜像，`-d` 让容器在后台运行。只要 `.env` 配置正确、Docker 构建成功且服务初始化完成，就可以通过所配置的端口访问本地后台；能打开后台之后，还需要完成授权和调用验证。
+
+构建后继续检查同一套服务：
+
+```bash
+docker compose -f docker-compose.dev.yml ps
+docker compose -f docker-compose.dev.yml logs -f sub2api
+```
+
+本地这份 `dev` 配置的容器名称是 `sub2api-dev`、`sub2api-postgres-dev` 和 `sub2api-redis-dev`；日志命令仍使用服务名 `sub2api`。
+
+| 部署方式               | Compose 文件               | 应用来源                         | 本文访问地址            |
+| ---------------------- | -------------------------- | -------------------------------- | ----------------------- |
+| 镜像启动（正文与截图） | `docker-compose.local.yml` | 拉取现成镜像                     | `http://127.0.0.1:8888` |
+| 源码构建（本节概览）   | `docker-compose.dev.yml`   | 通过项目根目录的 Dockerfile 构建 | `http://127.0.0.1:8888` |
+
+### 区分本机端口 8888 与容器端口 8080
+
+本文两种启动方式都使用同一组端口配置：
+
+```text
+浏览器 / CC Switch
+        ↓
+Mac 本机 127.0.0.1:8888
+        ↓ Docker 端口映射
+Sub2API 容器内部 :8080
+```
+
+| 位置             | 端口   | 配置与用途                                                                          |
+| ---------------- | ------ | ----------------------------------------------------------------------------------- |
+| Mac 宿主机       | `8888` | `deploy/.env` 中的 `SERVER_PORT=8888` 控制对外映射；浏览器和 CC Switch 访问这个端口 |
+| Sub2API 容器内部 | `8080` | Compose 的应用环境变量固定为 `SERVER_PORT=8080`，供容器内进程监听                   |
+
+端口映射为 `127.0.0.1:8888:8080`，依次表示 **绑定地址 : 宿主机端口 : 容器端口**。虽然两处配置都叫 `SERVER_PORT`，但所处环境不同：`.env` 的值用于 Compose 插值，容器内的值由 Compose 明确设为 `8080`。不需要把容器监听端口改成 `8888`，也不要将本机客户端地址填成 `http://127.0.0.1:8080`。
+
+本机这份 `dev` 模板带有开发用出站代理默认值，构建和运行前需要核对它们是否适合自己的网络。两套 Compose 文件还使用了相同的本地数据目录，不要在同一个 `deploy` 目录里同时启动两套数据库来共享数据；尝试独立开发实例时，使用独立的源码副本、配置和数据目录。已有实例的切换或升级应先备份。
+
+## 先理解：请求到底经过了哪里
+
+Sub2API 是第三方 AI API 网关。客户端向本地网关发送请求，网关使用已配置的上游账号完成转发，并管理分组、鉴权、并发与用量。
+
+![Sub2API 请求链路示意：客户端通过本地网关访问上游，网关连接数据库与缓存](/images/posts/sub2api-local/request-flow.svg)
+
+_图 1：根据本地部署结构绘制的示意图，不是运行状态截图。上游访问仍需要网络。_
+
+要先分清三组概念：
+
+| 概念                      | 用途                   | 放在哪里                 |
+| ------------------------- | ---------------------- | ------------------------ |
+| 管理员邮箱和密码          | 登录 Sub2API 管理后台  | 本地部署配置、密码管理器 |
+| 上游 OAuth 授权或 API Key | 让网关访问上游模型服务 | Sub2API 上游账号配置     |
+| Sub2API 生成的 API Key    | 让客户端调用你的网关   | 客户端的密钥配置         |
+
+客户端应使用 **Sub2API 生成的密钥**。不要把管理员密码、OAuth 回调 Code 或上游 Refresh Token 填到客户端的 API Key 字段里。
+
+本文记录的是第三方网关的接入方式。ChatGPT 账号授权与 OpenAI 官方 API Key 是不同的凭据与调用路径；账号能否使用某个模型、可用额度和协议兼容性，要以实际授权结果和请求结果为准。本地部署也不意味着模型在本地运行。
+
+## 第一步：准备 Mac 与 Docker 环境
+
+准备好以下内容：
+
+- 一台可以运行 Docker Desktop 的 Mac，以及已启动的 Docker Desktop。
+- Git；如果使用已下载的源码压缩包，可以跳过克隆。
+- Python 3，用于下文初始化配置；也可以手动编辑模板。
+- 一个可用于对应授权流程的上游账号，或你自己的 OpenAI API Key。
+- 能够从浏览器与 Docker 容器访问所需上游服务的网络。
+
+在终端检查环境：
+
+```bash
+docker version
+docker compose version
+git --version
+python3 --version
+```
+
+`docker version` 应能返回客户端和服务端信息。如果提示无法连接 Docker daemon，先启动 Docker Desktop，等待引擎就绪后重试。
+
+Docker 部署直接运行镜像，不要求先在宿主机安装 Go、Node.js、PostgreSQL 或 Redis。源码开发模式需要另一套依赖，本文不混用两条流程。
+
+## 第二步：准备部署目录
+
+对于一套全新的环境，可以执行：
+
+```bash
+mkdir -p ~/Projects
+cd ~/Projects
+git clone https://github.com/Wei-Shaw/sub2api.git
+cd sub2api/deploy
+```
+
+如果已经下载或克隆了项目，直接进入那个项目的 `deploy` 目录。路径包含空格时使用引号，例如 `cd "/你的项目路径/sub2api-main/deploy"`。**已有实例无需重新克隆、重新生成密钥或重新初始化。**
+
+本教程使用 `docker-compose.local.yml`，其数据保存在部署目录的三个子目录中：
+
+```text
+deploy/
+├── .env                       # 本机配置与凭据，不公开
+├── docker-compose.local.yml   # 本地目录挂载版本
+├── data/                      # 应用配置与数据
+├── postgres_data/             # PostgreSQL 数据
+└── redis_data/                # Redis 数据
+```
+
+`docker-compose.yml` 使用命名卷，`docker-compose.local.yml` 使用本地目录。后续启动、停止、检查和备份应始终对应同一份 Compose 文件。
+
+## 第三步：初始化本地配置
+
+### 关键配置分别控制什么
+
+| 配置项                | 本文使用方式                 | 作用                              |
+| --------------------- | ---------------------------- | --------------------------------- |
+| `BIND_HOST`           | `127.0.0.1`                  | 仅将应用端口发布到本机回环地址    |
+| `SERVER_PORT`         | `8888`                       | 宿主机访问端口，容器内仍是 `8080` |
+| `POSTGRES_PASSWORD`   | 单独生成随机值               | 应用访问 PostgreSQL 的密码        |
+| `JWT_SECRET`          | 生成后固定保存               | 用于登录令牌签名                  |
+| `TOTP_ENCRYPTION_KEY` | 生成后固定保存               | 用于双重验证相关密钥加密          |
+| `ADMIN_EMAIL`         | 设为自己选择的管理员登录邮箱 | 首次初始化管理员身份              |
+| `ADMIN_PASSWORD`      | 使用独立强密码               | 首次初始化管理员密码              |
+| `RUN_MODE`            | 保留模板的 `standard`        | 使用标准管理、用量与计费逻辑      |
+
+本地 Compose 模板通过 `${BIND_HOST}:${SERVER_PORT}:8080` 映射端口。因此，在 `.env` 中写 `SERVER_PORT=8888`，并不要求修改容器内应用监听端口。
+
+### 仅在首次部署时创建 `.env`
+
+下面的脚本读取 `.env.example`，为必要的密码与密钥生成随机值，只输出初始化结果。它以独占方式创建 `.env`，已有文件时直接退出，避免覆盖正在运行的实例配置。
+
+```bash
+python3 - <<'PY'
+import os
+import re
+import secrets
+from pathlib import Path
+
+target = Path(".env")
+if target.exists():
+    raise SystemExit(".env 已存在，请检查现有配置，不要重新初始化。")
+
+text = Path(".env.example").read_text(encoding="utf-8")
+settings = {
+    "BIND_HOST": "127.0.0.1",
+    "SERVER_PORT": "8888",
+    "POSTGRES_PASSWORD": secrets.token_hex(32),
+    "JWT_SECRET": secrets.token_hex(32),
+    "TOTP_ENCRYPTION_KEY": secrets.token_hex(32),
+    "ADMIN_PASSWORD": secrets.token_hex(24),
+}
+
+for key, value in settings.items():
+    pattern = rf"^{re.escape(key)}=.*$"
+    text, count = re.subn(pattern, f"{key}={value}", text, flags=re.MULTILINE)
+    if count != 1:
+        raise SystemExit(f"模板中的 {key} 不唯一或不存在，请手动核对。")
+
+fd = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+with os.fdopen(fd, "w", encoding="utf-8") as stream:
+    stream.write(text)
+
+print("已创建 .env；请在本地编辑器检查管理员邮箱，并安全保存管理员密码。")
+PY
+```
+
+在 `deploy` 目录中，将上面的整个代码块粘贴到终端执行即可；最后一行 `PY` 需要保持独占一行。
+
+然后用本地编辑器打开 `.env`，检查 `ADMIN_EMAIL` 并保存。模板默认邮箱只是本地管理员登录标识，不代表已经配置邮件发送。将生成的管理员密码保存到自己的密码管理器中，不把文件内容复制到聊天、文章或截图里。
+
+**已初始化的实例不要通过随意改 `.env` 来重置管理员或数据库密码。** 首次初始化变量不等于后续密码修改接口；尤其 PostgreSQL 已有数据目录后，只改应用侧密码会造成连接失败。`JWT_SECRET` 和 `TOTP_ENCRYPTION_KEY` 也应长期保存，不能每次启动都重新生成。
+
+## 第四步：启动并检查服务
+
+在 `deploy` 目录执行：
+
+```bash
+mkdir -p data postgres_data redis_data
+docker compose -f docker-compose.local.yml config --quiet
+docker compose -f docker-compose.local.yml up -d
+docker compose -f docker-compose.local.yml ps
+```
+
+`config --quiet` 用于检查 Compose 配置，不打印展开后的完整配置；普通 `docker compose config` 可能显示插入其中的密码，不适合录屏或公开日志。
+
+首次启动会拉取镜像、初始化数据库、执行迁移并创建管理员。本地这套环境使用的三个镜像是 `weishaw/sub2api:latest`、`postgres:18-alpine` 和 `redis:8-alpine`；这些是本次观察值，未来下载的模板和 `latest` 镜像可能变化。
+
+应重点检查：
+
+| 服务               | 预期状态                   | 本地端口说明                   |
+| ------------------ | -------------------------- | ------------------------------ |
+| `sub2api`          | Running / Up，健康检查通过 | `127.0.0.1:8888 -> 8080/tcp`   |
+| `sub2api-postgres` | Running / Up，健康检查通过 | `5432/tcp`，不需要发布到宿主机 |
+| `sub2api-redis`    | Running / Up，健康检查通过 | `6379/tcp`，不需要发布到宿主机 |
+
+进一步检查应用健康接口：
+
+```bash
+curl --fail --silent --show-error http://localhost:8888/health
+```
+
+健康接口正常，表示应用可以响应健康检查。还需要后面的授权、分组、Key 和实际请求验证，才能证明完整转发链路可用。
+
+如需排查启动问题，在本地查看最近的日志：
+
+```bash
+docker compose -f docker-compose.local.yml logs --tail=100 sub2api
+```
+
+初始化日志可能含自动生成的管理员密码，错误日志也可能含账号信息。不要直接将整段日志截图或粘贴到公开位置。
+
+## 第五步：登录管理后台
+
+打开 [本地 Sub2API](http://localhost:8888)，点击“登录”，使用首次初始化的管理员邮箱和密码进入后台。
+
+![本机 Sub2API 登录页，邮箱和密码均为空](/images/posts/sub2api-local/login.png)
+
+_图 2：本地 `localhost:8888/login` 的真实截图，未输入任何账号或密码。_
+
+这套 Docker Compose 配置启用了 `AUTO_SETUP=true`，会自动完成首次初始化。它与二进制部署的 Web Setup 向导不同，不必照着二进制安装教程再配置一次数据库。
+
+忘记密码时应按当前版本支持的账户恢复方式处理，不要删除数据库目录来“重置”。修改 `.env` 后重启也不保证修改已经存在的管理员密码。
+
+## 第六步：先创建 OpenAI 分组
+
+分组决定一个 API Key 可以调度哪些上游账号。可以把下面的三个对象关联起来：
+
+```text
+客户端 API Key → OpenAI 分组 → 已授权且可调度的上游账号
+```
+
+1. 在管理后台进入“分组管理”。
+2. 点击“创建分组”。
+3. 输入便于识别的名称，例如 `openai-local`。
+4. 平台选择 **OpenAI**。
+5. 初次验证可使用普通按量计费分组，计费倍率先保持容易理解的值，例如 `1.0`；如果选择订阅分组，还需要对应有效订阅。
+6. 保存分组，确认状态可用。若设置了专属访问限制，确保后续创建 Key 的用户有访问权限。
+
+![分组管理列表，OpenAI 分组已建立，内部名称和用量已遮挡](/images/posts/sub2api-local/groups.webp)
+
+_图 3：在“分组管理”中确认平台为 OpenAI，并检查账号数量和状态。[查看大图](/images/posts/sub2api-local/groups.webp)。_
+
+![编辑分组窗口，平台为 OpenAI，费率倍数为 2，每分钟请求数为 0](/images/posts/sub2api-local/group-settings.webp)
+
+_图 4：已有分组的编辑页，可用于核对创建结果。截图使用倍率 `2`，这是本次配置值，不是必填值；平台旁提示“创建后不可更改平台”，因此创建时就要选对 OpenAI。_
+
+图中“每分钟请求数（RPM）”为 `0`，表示这一层不设置请求次数上限，不代表上游没有限额；“专属分组”关闭表示站内公开分组，也不等于将本地服务公开到互联网。
+
+这里的倍率用于网关自身的用量计算，不会改变上游的订阅价格，也不会增加上游账号配额。测试时需同时检查用户余额、分组权限和 Key 配额，不能只看上游账号状态。
+
+## 第七步：添加上游 ChatGPT 账号
+
+### 方式 A：使用 ChatGPT OAuth
+
+这次使用的是已购买 ChatGPT Plus 的账号。先在 **Chrome** 中登录准备授权的 ChatGPT 账号；如果浏览器里有多个账号，先核对当前登录身份，再用同一个浏览器打开授权链接。这里记录本次使用条件，不据此推断其他订阅的可用范围。
+
+1. 打开“账号管理”，点击“添加账号”。
+2. 平台选择 **OpenAI**，账号类型选择 **OAuth**，卡片下方显示 **ChatGPT OAuth**。
+3. 设置一个不包含邮箱等个人信息的账号名称，例如 `openai-personal`。
+4. **向下滚动到“分组”，勾选刚才创建的 OpenAI 分组。确认已选数量至少为 1，再点击“下一步”。** 如果需要出站代理，在该账号的代理设置中选择已配置且可用的代理。
+5. 进入“OpenAI 账户授权”，选择“手动授权”，点击“生成授权链接”。
+6. 在已经登录目标 ChatGPT 账号的 Chrome 中打开生成的链接，核对登录域名和账号后，完成页面要求的授权流程。
+7. 按该版本界面提示，回到 Sub2API 的“授权链接或 Code”输入框，填入本次流程产生的回调 URL 或 Code，完成授权码兑换。
+8. 保存后返回账号列表，确认授权状态正常、账号可调度且绑定了正确分组，再进行实际请求验证。
+
+![添加账号第一步，已选择 OpenAI 平台和 ChatGPT OAuth 类型](/images/posts/sub2api-local/account-oauth.webp)
+
+_图 5：选择 OpenAI → OAuth。模型白名单是当前界面的配置项，不能仅凭列表判断账号已经拥有这些模型的访问权限。_
+
+![添加账号窗口底部，红框标出必须勾选的 OpenAI 分组，截图显示已选 0 个](/images/posts/sub2api-local/account-group.webp)
+
+_图 6：这是勾选前的截图，仍显示“已选 0 个”。需要勾选红框内分组，确认数量变成至少 1，再进入下一步；不要把这张截图当作已配置完成的状态。_
+
+**本流程中，账号必须绑定到后续 API Key 使用的分组，才能被该分组调度。** 只完成 OAuth 授权、没有选中分组，客户端仍可能遇到“没有可用账号”。如果已经保存，可以回到账号编辑页补上分组，再检查分组中的可用账号数。
+
+![OpenAI 账户授权页面，依次生成链接、浏览器授权、输入回调链接或 Code](/images/posts/sub2api-local/account-authorize.webp)
+
+_图 7：“手动授权”的三个操作步骤。截图尚未填入回调信息，“完成授权”按钮未就绪；它展示操作入口，不是授权成功凭证。_
+
+如果浏览器跳转到了 `localhost` 回调地址，却显示页面无法连接，不要立刻认定授权成功或失败。本地版本提供了手动粘贴回调 URL / Code 的流程；应以 **Sub2API 成功兑换并保存授权** 为准。过期或已使用的 Code 需要重新走完整流程。
+
+OAuth 回调 URL、Code、Access Token 和 Refresh Token 都不能出现在公开截图中。只记录操作入口和脱敏后的授权结果即可。
+
+### 方式 B：使用上游 API Key
+
+如果使用的是自己的 OpenAI 官方 API Key，在“添加账号”中选择 OpenAI 的 API Key 类型，填写上游 Key，并关联同一 OpenAI 分组。该版本界面注明：上游 Base URL 留空时使用官方 OpenAI API；自定义上游地址时应遵循对应提供方的接口说明。
+
+这里填写的是 **网关访问上游的地址**，不是本文客户端访问网关的 `http://localhost:8888/v1`。不要把上游地址指向网关自己，造成转发循环。
+
+两种授权方式选符合自己实际账号条件的一种即可。不要因为一个方式可用，就推断另一个方式拥有相同的模型、配额或计费规则。
+
+### Mac 上最常见的代理误区
+
+宿主机浏览器可以访问上游，不代表 Docker 容器也能访问。容器中的 `127.0.0.1` 指容器自身，不是 Mac。
+
+如果代理运行在 Mac 上，Docker Desktop 通常通过 `host.docker.internal` 访问宿主机，例如代理字段可按自己的实际协议和端口填写 `http://host.docker.internal:实际端口`。这个端口必须来自自己的代理软件配置，不能照抄别人的常见端口。
+
+代理软件还需要允许来自容器的连接。先核对监听地址、访问范围和防火墙；不必为了使用本地转发而把 Sub2API 管理端口开放到局域网。
+
+## 第八步：新建 Sub2API 用户并配置角色
+
+上游“账号”和 Sub2API“用户”是两个不同对象：前者提供模型访问能力，后者拥有登录身份、角色、余额和 API Key。**按这次搭建流程，先新建一个用于日常调用的用户并配置角色，再创建该用户的 Key。不要漏掉这一步。**
+
+1. 使用初始化管理员登录后台，打开“用户管理”。
+2. 点击右上角“创建用户”。
+3. 填写新用户的邮箱和独立登录密码；用户名可选，方便日后识别。
+4. 在“角色”中明确选择权限：只用于客户端调用时选择 **用户**；确实需要管理站点时才选择 **管理员**。
+5. 配置余额、并发数和每分钟请求数。截图中的并发数为 `1`、RPM 为 `0`，可作为起步配置；标准余额分组需有足够的站内余额，订阅分组需有相应有效订阅。
+6. 点击“创建”，回到列表确认新用户已出现、角色正确、状态为“启用”。
+7. 使用新用户登录 Sub2API，再进入该用户的“API 密钥”页面，继续下一步。
+
+![用户管理列表，右上角创建用户按钮以红框突出，用户资料和余额已遮挡](/images/posts/sub2api-local/users.webp)
+
+_图 8：从“用户管理”创建独立用户。列表里已有用户的“管理员”角色仅反映当时配置，不是调用 API 的必要条件。[查看大图](/images/posts/sub2api-local/users.webp)。_
+
+![创建用户表单，包含邮箱、密码、角色、余额、并发数和每分钟请求数](/images/posts/sub2api-local/create-user.webp)
+
+_图 9：创建用户时必须确认角色。图中选择“用户”，适合只使用模型接口、不管理站点的调用身份。表单仍为空，需要填妥后再创建。_
+
+站内余额由这套 Sub2API 实例管理，与 ChatGPT Plus 的订阅状态不同。上游账号已经购买 Plus，不会自动给新建的 Sub2API 用户补足站内余额。用户级 RPM 为 `0` 也不意味着可以忽略分组和上游限制；按截图提示，分组设置了自己的 RPM 时，应以相应分组规则为准。
+
+## 第九步：创建给客户端使用的 API Key
+
+1. 确认当前登录的是刚创建的调用用户，进入“API 密钥”。
+2. 点击“创建密钥”，填写易识别的名称，例如 `local-client-test`。
+3. 选择 `openai-local` 分组，确保与上游账号所属分组一致。
+4. 检查该用户的余额或有效订阅，以及 Key 的额度、有效期和访问限制。
+5. 创建后将完整密钥保存在自己的密码管理器中，用于客户端配置。
+
+后台的“使用密钥”说明可以帮助确认当前版本的接入格式，但它可能显示完整密钥。截图前先完全遮挡密钥区域；不要为了展示按钮或代码而泄露可调用的凭据。
+
+## 第十步：配置 CC Switch 与请求协议
+
+### 按本次截图填写 CC Switch
+
+本次通过 CC Switch 管理 Codex 的提供方配置。截图展示的是“编辑供应商”页面，API 地址提示兼容 OpenAI Responses 格式，模型设置会写入 `config.toml`。
+
+1. 在 CC Switch 的 Codex 配置中，新建或编辑准备使用的供应商。
+2. 填写易识别的供应商名称，例如 `Sub2API Local`；官网链接是可选项。
+3. 在“API Key”中填写**第九步由新用户生成的 Sub2API Key**。
+4. 按截图保留“完整 URL”为关闭状态，“API 请求地址”填写 **`http://127.0.0.1:8888`**。
+5. 填写实际可用的模型名称；截图填写 `gpt-6`，它是这次客户端配置中的模型 ID，不是所有账号都能使用的保证。可点击“获取模型列表”辅助选择，再用实际请求确认。
+6. 点击“保存”。保存后回到供应商列表，确认该配置已被选为当前使用的供应商；如尚未启用，按当前版本界面完成切换。
+7. 让使用该配置的客户端重新加载配置或启动新会话，再发送一条简短测试请求。
+
+![CC Switch 编辑供应商页面，API 请求地址为本机 8888 端口，完整 URL 关闭，API Key 已遮挡](/images/posts/sub2api-local/cc-switch.webp)
+
+_图 10：CC Switch 的实际配置截图，API Key 区域已完全遮挡。[查看大图](/images/posts/sub2api-local/cc-switch.webp)。_
+
+这里要特别注意：**截图使用服务根地址 `http://127.0.0.1:8888`，不是下面通用示例中的 `http://localhost:8888/v1`。** `127.0.0.1` 和 `localhost` 都用于访问本机，区别重点是客户端如何拼接请求路径，以及“完整 URL”选项是否开启。
+
+本地 Sub2API 同时注册了根路径 `/responses` 和 `/v1/responses` 等兼容入口。请结合当前 CC Switch 版本检查最终请求路径；不要在没有确认拼接规则时，额外追加 `/v1` 或 `/responses`。这张截图证明配置字段的填写方式，不证明保存、供应商切换或模型请求已经完成。
+
+### 其他 OpenAI 兼容客户端怎么填写
+
+对于支持自定义 OpenAI 兼容服务的客户端，先确认它支持哪一种协议，再填写配置：
+
+| 字段         | 本地填写值                                           |
+| ------------ | ---------------------------------------------------- |
+| 服务名称     | 任意易识别名称，例如 `Sub2API Local`                 |
+| API Base URL | `http://localhost:8888/v1`                           |
+| API Key      | 第九步生成的 Sub2API Key                             |
+| 模型         | 当前账号与分组实际支持的模型 ID                      |
+| 接口类型     | 客户端与上游同时支持的 Responses 或 Chat Completions |
+
+有些客户端要求填“服务根地址”，会自动补 `/v1`；另一些要求完整 API Base URL。查看最终请求路径，避免拼成 `/v1/v1/responses`。不要在 Base URL 中填 `/login`、管理后台地址，或者完整的 `/responses` 请求路径，除非客户端明确要求“完整端点”。
+
+本地版本注册了 `/v1/models`、`/v1/responses` 和 `/v1/chat/completions` 等路由。**路由存在不代表所有上游账号都支持全部功能。** 如果客户端只会发送 Chat Completions，请先测试这条协议，不要仅凭模型列表正常就认定对话可用。
+
+使用 Codex 等客户端时，可参考 Sub2API “使用密钥”中的对应说明，重点检查提供方、Base URL 和 Responses 协议。先备份自己的原配置，避免整份覆盖已有登录与其他提供方设置；具体配置项以所用客户端版本为准。
+
+## 第十一步：验证一条完整请求
+
+建议按“健康检查 → 模型列表 → 小请求 → 用量记录”的顺序验证。前一个成功，并不保证后一个成功。
+
+### 用 Python 发送最小 Responses 请求
+
+下面的脚本仅使用 Python 标准库。在隐藏输入中粘贴 Sub2API Key，然后输入实际可用的模型 ID；它不会把 Key 写入脚本或作为命令行参数保存。
+
+将代码保存为 `check_sub2api.py`，执行 `python3 check_sub2api.py`。该步骤会向配置的上游发送一句测试文本，产生少量实际用量。
+
+```python
+import getpass
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
+
+base_url = "http://localhost:8888/v1"
+api_key = getpass.getpass("Sub2API Key（隐藏输入）: ").strip()
+if not api_key:
+    raise SystemExit("未输入 Key。")
+
+headers = {
+    "Authorization": f"Bearer {api_key}",
+    "Content-Type": "application/json",
+}
+
+try:
+    request = Request(f"{base_url}/models", headers=headers)
+    with urlopen(request, timeout=30) as response:
+        models = json.load(response)
+    model_ids = [item["id"] for item in models.get("data", []) if "id" in item]
+    print("网关返回的模型 ID：", ", ".join(model_ids) or "未返回列表")
+
+    model = input("输入本次验证的模型 ID: ").strip()
+    if not model:
+        raise SystemExit("未输入模型 ID。")
+
+    payload = {
+        "model": model,
+        "input": [{"role": "user", "content": "请只回复：本地转发测试成功"}],
+        "stream": True,
+        "store": False,
+    }
+    request = Request(
+        f"{base_url}/responses",
+        headers=headers,
+        data=json.dumps(payload).encode("utf-8"),
+        method="POST",
+    )
+
+    completed = False
+    with urlopen(request, timeout=120) as response:
+        print("HTTP 状态：", response.status)
+        for raw_line in response:
+            line = raw_line.decode("utf-8").strip()
+            if not line.startswith("data:"):
+                continue
+            data = line[5:].strip()
+            if not data or data == "[DONE]":
+                continue
+            event = json.loads(data)
+            kind = event.get("type")
+            if kind == "response.output_text.delta":
+                print(event.get("delta", ""), end="", flush=True)
+            elif kind == "response.completed":
+                completed = True
+            elif kind in ("error", "response.failed", "response.incomplete"):
+                raise SystemExit("\n响应未完成，请在本地后台检查错误详情。")
+    print()
+    if not completed:
+        raise SystemExit("未收到 response.completed，暂不能判定调用成功。")
+    print("已收到完整响应；请核对后台对应的用量记录。")
+except HTTPError as error:
+    # 不直接打印响应正文，避免上游错误包含敏感值。
+    raise SystemExit(f"HTTP {error.code}：请在本地后台检查错误详情。") from None
+except (URLError, TimeoutError):
+    raise SystemExit("连接失败或超时，请检查服务与网络。") from None
+except (ValueError, UnicodeError):
+    raise SystemExit("响应格式不符合预期，请检查协议与版本。") from None
+```
+
+请求体与流式事件按照 OpenAI Responses 接口格式编写，同时使用 `stream: true` 和 `store: false` 适配常见的 OAuth 转发需求。这里的 `store: false` 是请求参数，**不能替代对网关自身日志与审计策略的检查**。
+
+模型列表只能提供候选项，不能证明账号拥有对应模型权限。若模型不支持，应根据实际账号权限换用可用模型。上面的代码是验证工具示例，本文整理过程中未使用真实 Key 执行上游调用。
+
+### 回到后台核对结果
+
+完成测试后，在对应用户的用量记录或管理后台请求记录中，核对本次请求的时间、模型、状态与分组。示例只发送固定测试句，适合截取为成功案例；不要连同历史私人对话、其他账号信息或账单一起截图。
+
+完整验收至少包括：客户端拿到输出、流式响应正常结束、后台能够找到对应记录。仅截图 HTTP 200，可能遗漏流式中途失败。
+
+## 常见问题与排查顺序
+
+| 现象                      | 先检查什么                              | 处理方向                                                      |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| `localhost:8888` 无法打开 | Docker 是否启动、应用是否健康、端口映射 | 查看 Compose `ps`，确认实际宿主机端口                         |
+| 启动时提示端口被占用      | 是否已有程序或旧容器监听 `8888`         | 选择空闲端口，更新客户端配置后重新 `up -d`                    |
+| PostgreSQL 认证失败       | 是否修改了已有数据库对应的密码          | 使应用密码与数据库真实密码一致，不删除数据目录                |
+| 修改 `.env` 后没有生效    | 是否只执行了 `restart`                  | 在同一目录用同一 Compose 文件执行 `up -d`，必要时重建对应服务 |
+| 后台能开，OAuth 失败      | 浏览器与容器两侧的出站网络              | 检查账号代理、代理监听范围，再生成新的授权链接                |
+| 401 或 403                | Key 来源、有效期、用户状态与分组权限    | 区分网关鉴权错误和上游授权错误                                |
+| 提示余额不足或订阅不可用  | 用户余额、分组计费类型、订阅状态        | 配齐网关内部调用条件，管理员登录成功不等于具备用量额度        |
+| 没有可用账号              | Key 与账号是否属于同一 OpenAI 分组      | 检查绑定关系、账号启用状态、额度与调度限制                    |
+| 模型列表正常，对话报错    | 实际模型权限与请求协议                  | 分别检查 Responses / Chat Completions 兼容情况                |
+| 404                       | Base URL 是否重复或遗漏 `/v1`           | 对照最终请求路径和当前版本路由                                |
+| 429                       | 上游限额、并发、网关限速                | 等待配额恢复或降低并发，避免无间隔重试                        |
+| 502、超时或流式中断       | 上游网络、代理、账号状态                | 结合本地日志定位；若增加反向代理，再检查流式缓冲与超时        |
+| 其他设备无法连接          | 服务是否仅绑定 `127.0.0.1`              | 本文配置就是仅本机访问；远程访问需要另行设计认证与网络边界    |
+
+改变端口前可在 Mac 上执行 `lsof -nP -iTCP:8888 -sTCP:LISTEN` 查看监听者，不必直接结束未知进程。
+
+## 日常使用、备份与更新
+
+### 常用命令
+
+以下命令均在原 `deploy` 目录执行：
+
+```bash
+# 查看状态
+docker compose -f docker-compose.local.yml ps
+
+# 临时停止应用，保留数据库与缓存运行
+docker compose -f docker-compose.local.yml stop sub2api
+
+# 按当前配置启动服务
+docker compose -f docker-compose.local.yml up -d
+
+# 配置不变时，仅重启应用
+docker compose -f docker-compose.local.yml restart sub2api
+```
+
+### 备份要覆盖哪些内容
+
+至少保存 `.env`、所用 Compose 文件，以及 `data`、`postgres_data`、`redis_data` 三个目录。备份包含登录凭据、上游授权和使用信息，应保存在私密位置，不进入博客或公共 Git 仓库。
+
+直接复制正在写入的 PostgreSQL 目录不能保证备份一致。对于个人本地实例，可以安排暂停使用后进行冷备份：
+
+1. 确认没有正在进行的请求。
+2. 用 `docker compose -f docker-compose.local.yml stop` 停止整套服务；此操作会暂时中断使用。
+3. 以保留权限的方式复制完整部署目录到新的备份位置。遇到目录权限问题时，采用适合当前 Docker 环境的备份方式，不能把部分复制当作成功。
+4. 运行 `docker compose -f docker-compose.local.yml up -d` 恢复原实例。
+5. 检查容器健康；在隔离环境验证备份能恢复后，才将它视为可靠备份。
+
+不要在日常教程操作中执行删除数据目录或清理卷的命令。恢复备份属于覆盖操作，应先保留当前数据，并使用匹配的数据库和应用版本。
+
+### 更新前先记录版本
+
+`latest` 会变化。可以记录本次镜像标签、镜像 ID 和摘要，再结合上游发布说明选择固定版本；源码里的版本文件不一定等于当前运行镜像的版本。
+
+完成备份并阅读更新说明后，更新流程通常是：
+
+```bash
+docker compose -f docker-compose.local.yml pull sub2api
+docker compose -f docker-compose.local.yml up -d sub2api
+docker compose -f docker-compose.local.yml ps
+```
+
+更新可能触发数据库迁移。只换回旧镜像不一定能够回滚，必要时需要匹配版本的数据备份。更新后重新检查登录、账号状态以及最小调用链路。
+
+## 最后检查这六件事
+
+1. 三个服务正常，入口端口与客户端配置一致。
+2. 本地服务只发布在预期的网络接口上。
+3. OpenAI 分组绑定了可用上游账号。
+4. 已新建调用用户并配置正确角色，客户端使用该用户的 Sub2API Key，余额、订阅或额度满足要求。
+5. 一次最小请求完成，并能在后台找到对应记录。
+6. 配置、数据库和授权信息有私密备份，公开截图不包含凭据。
+
+至此，部署、授权、分组与客户端调用形成了可逐项排查的完整流程。后续切换客户端时，优先核对 Base URL、Key、模型和协议这四项。
+
+## 参考资料
+
+- [Sub2API 开源仓库](https://github.com/Wei-Shaw/sub2api)：项目说明、版本与源码。
+- [Sub2API 部署文档](https://github.com/Wei-Shaw/sub2api/blob/main/deploy/README.md)：Docker Compose、自动初始化与数据持久化。
+- [本地目录版 Compose 模板](https://github.com/Wei-Shaw/sub2api/blob/main/deploy/docker-compose.local.yml)：端口、容器与环境变量配置。
+- [OpenAI Responses API](https://developers.openai.com/api/reference/resources/responses/methods/create)：请求格式与响应对象；第三方网关的实际兼容程度需单独验证。
+
+本文为个人部署过程的原创整理。截图来自本机实例，链路图为原创示意；Sub2API 的商标、界面与相关代码权利归原作者所有。上游文档链接指向持续更新的分支，复现时应以自己使用的版本为准。

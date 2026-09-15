@@ -1292,6 +1292,55 @@ function renderEventThrottle() {
   );
 }
 
+function renderLocalGateway() {
+  return panel(
+    { display: "flex", position: "relative", width: "100%", height: "100%", background: "#102c31", overflow: "hidden" },
+    [
+      ...Array.from({ length: 9 }, (_, index) =>
+        panel({ position: "absolute", left: 80 + index * 136, top: 0, width: 1, height: "100%", background: "#214046" }, undefined, `gateway-grid-${index}`),
+      ),
+      textLabel("SUB2API", { position: "absolute", left: 70, top: 52, color: "#e5f3e9", fontSize: 42, fontWeight: 700 }, "gateway-title"),
+      textLabel("LOCAL API GATEWAY", { position: "absolute", left: 73, top: 112, color: "#83b7ab", fontSize: 18, letterSpacing: 4 }, "gateway-subtitle"),
+      panel({ position: "absolute", left: 155, top: 335, width: 880, height: 7, background: "#70d6bf" }, undefined, "gateway-connection"),
+      ...[350, 796].map((left) => panel({ position: "absolute", left, top: 322, width: 28, height: 28, borderTop: "7px solid #70d6bf", borderRight: "7px solid #70d6bf", transform: "rotate(45deg)" }, undefined, `gateway-arrow-${left}`)),
+      panel(
+        { display: "flex", position: "absolute", left: 66, top: 236, width: 244, height: 175, border: "5px solid #e6f0dd", borderRadius: 14, background: "#193d44" },
+        [
+          textLabel(">_", { position: "absolute", left: 24, top: 32, color: "#f0d776", fontSize: 64, fontWeight: 700 }, "gateway-terminal-prompt"),
+          panel({ position: "absolute", left: 28, bottom: 30, width: 120, height: 8, background: "#79b4a6" }, undefined, "gateway-terminal-line"),
+        ],
+        "gateway-client",
+      ),
+      panel({ position: "absolute", left: 171, top: 414, width: 34, height: 36, background: "#e6f0dd" }, undefined, "gateway-stand"),
+      panel({ position: "absolute", left: 124, top: 448, width: 128, height: 9, borderRadius: 4, background: "#e6f0dd" }, undefined, "gateway-foot"),
+      panel(
+        { display: "flex", position: "absolute", left: 440, top: 202, width: 290, height: 296, borderRadius: 22, border: "5px solid #091d21", background: "#e6f0dd", boxShadow: "14px 14px 0 #091d21" },
+        [
+          ...[0, 1, 2].map((index) => panel(
+            { display: "flex", position: "absolute", left: 30, top: 34 + index * 78, width: 220, height: 54, borderRadius: 9, background: "#123b3c" },
+            [
+              panel({ position: "absolute", left: 16, top: 18, width: 18, height: 18, borderRadius: 9, background: index === 0 ? "#f0d776" : "#70d6bf" }, undefined, `gateway-led-${index}`),
+              panel({ position: "absolute", left: 61, top: 23, width: 129, height: 8, background: "#568e82", borderRadius: 4 }, undefined, `gateway-slot-${index}`),
+            ],
+            `gateway-server-${index}`,
+          )),
+        ],
+        "gateway-stack",
+      ),
+      ...[
+        { left: 866, top: 246, size: 110 },
+        { left: 924, top: 211, size: 157 },
+        { left: 1030, top: 261, size: 100 },
+      ].map((cloud, index) => panel({ position: "absolute", left: cloud.left, top: cloud.top, width: cloud.size, height: cloud.size, borderRadius: cloud.size, background: "#70d6bf" }, undefined, `gateway-cloud-${index}`)),
+      panel({ position: "absolute", left: 886, top: 302, width: 221, height: 85, borderRadius: 26, background: "#70d6bf" }, undefined, "gateway-cloud-base"),
+      textLabel("AI", { position: "absolute", left: 960, top: 280, color: "#123b3c", fontSize: 54, fontWeight: 700 }, "gateway-cloud-label"),
+      textLabel("CLIENT", { position: "absolute", left: 143, top: 520, color: "#b9d6ca", fontSize: 22 }, "gateway-client-label"),
+      textLabel("127.0.0.1 : 8888", { position: "absolute", left: 480, top: 545, color: "#f0d776", fontSize: 25 }, "gateway-address"),
+      textLabel("UPSTREAM", { position: "absolute", left: 928, top: 440, color: "#b9d6ca", fontSize: 22 }, "gateway-upstream-label"),
+    ],
+  );
+}
+
 const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "warm-architecture": renderWarmArchitecture,
   "signal-systems": renderSignalSystems,
@@ -1300,6 +1349,7 @@ const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "interview-evidence": renderInterviewEvidence,
   "ai-full-stack": renderAiFullStack,
   "event-throttle": renderEventThrottle,
+  "local-gateway": renderLocalGateway,
 };
 
 export async function GET(
