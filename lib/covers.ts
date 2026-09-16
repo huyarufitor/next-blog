@@ -6,7 +6,8 @@ export type CoverTheme =
   | "interview-evidence"
   | "ai-full-stack"
   | "event-throttle"
-  | "local-gateway";
+  | "local-gateway"
+  | "developer-workbench";
 
 export type CoverDefinition = {
   name: string;
@@ -15,6 +16,14 @@ export type CoverDefinition = {
 };
 
 const coverDefinitions = new Map<string, CoverDefinition>([
+  [
+    "female-developer-self-positioning.png",
+    {
+      name: "female-developer-self-positioning.png",
+      title: "女性开发者的自我定位",
+      theme: "developer-workbench",
+    },
+  ],
   [
     "sub2api-local-gateway.png",
     {

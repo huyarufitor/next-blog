@@ -106,6 +106,18 @@ describe("PostCover", () => {
 });
 
 describe("post cover image route", () => {
+  it("renders the developer workbench cover at the article's 16:9 size", async () => {
+    const response = await GET(new Request("http://localhost"), {
+      params: Promise.resolve({ name: "female-developer-self-positioning.png" }),
+    });
+    expect(response.status).toBe(200);
+    expect(response.headers.get("content-type")).toBe("image/png");
+    const body = new Uint8Array(await response.arrayBuffer());
+    const header = new DataView(body.buffer, body.byteOffset, body.byteLength);
+    expect(header.getUint32(16)).toBe(1200);
+    expect(header.getUint32(20)).toBe(675);
+  });
+
   it.each(getAllCoverDefinitions().map((cover) => cover.name))(
     "returns a complete PNG body for %s",
     async (name) => {

@@ -2,6 +2,7 @@ import { createElement, type CSSProperties, type ReactNode } from "react";
 import { ImageResponse } from "next/og";
 
 import { getCoverDefinition, type CoverTheme } from "@/lib/covers";
+import { DeveloperWorkbench } from "@/lib/cover-artworks/developer-workbench";
 
 type CoverRouteContext = {
   params: Promise<{
@@ -1342,6 +1343,10 @@ function renderLocalGateway() {
 }
 
 const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
+  "developer-workbench": () => panel(
+    { display: "flex", width: "100%", height: "100%" },
+    createElement(DeveloperWorkbench),
+  ),
   "warm-architecture": renderWarmArchitecture,
   "signal-systems": renderSignalSystems,
   "dependency-flow": renderDependencyFlow,
