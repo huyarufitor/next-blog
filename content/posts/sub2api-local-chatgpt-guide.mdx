@@ -14,6 +14,8 @@ draft: false
 
 我已经在自己的 Mac 上搭建了 Sub2API。这篇文章把部署文件、后台配置和客户端调用串起来，整理成一份可以逐步操作的本地教程。
 
+如果你想先了解它的完整能力、技术架构和适用边界，可以阅读独立的 [Sub2API 项目说明](/notes/ai/sub2api-project-overview)。
+
 本文以 **Docker Compose、本机访问、OpenAI / ChatGPT 上游、CC Switch 接入** 为范围。实际环境的入口是 `http://localhost:8888`，容器内部监听 `8080`。本次使用 Chrome 中已登录并购买 ChatGPT Plus 的账号完成授权流程，随后配置独立的 Sub2API 用户和客户端。
 
 下文补充了这次配置的 8 张操作截图，覆盖分组、账号授权、用户和 CC Switch；内部命名、用户资料、余额及密钥区域已遮挡，部分空白区域已裁切。截图中的模型名称与数值反映当时的配置，不代表所有账号都具备相同权限。三个服务容器健康、页面可访问已经核实，完整模型调用仍应按最后的验证步骤检查。
@@ -615,6 +617,7 @@ docker compose -f docker-compose.local.yml ps
 
 ## 参考资料
 
+- [Sub2API 项目说明](/notes/ai/sub2api-project-overview)：项目定位、能力、技术架构与安全边界。
 - [Sub2API 开源仓库](https://github.com/Wei-Shaw/sub2api)：项目说明、版本与源码。
 - [Sub2API 部署文档](https://github.com/Wei-Shaw/sub2api/blob/main/deploy/README.md)：Docker Compose、自动初始化与数据持久化。
 - [本地目录版 Compose 模板](https://github.com/Wei-Shaw/sub2api/blob/main/deploy/docker-compose.local.yml)：端口、容器与环境变量配置。
