@@ -316,6 +316,11 @@ input {
   width: 100%;
 }
 
+.post-content img.app-screenshot {
+  width: min(100%, 375px);
+  margin-inline: auto;
+}
+
 .post-content table {
   width: 100%;
   border-collapse: collapse;

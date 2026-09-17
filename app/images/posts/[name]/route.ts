@@ -1342,6 +1342,256 @@ function renderLocalGateway() {
   );
 }
 
+function renderScoreModes() {
+  const chordCells = ["C", "G", "Am", "F"].map((chord, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 32 + index * 98,
+        top: 105,
+        display: "flex",
+        width: 76,
+        height: 64,
+        alignItems: "center",
+        justifyContent: "center",
+        border: "4px solid #171a1b",
+        borderRadius: 6,
+        background: index === 2 ? "#ef6958" : "#f5c84c",
+        color: "#171a1b",
+        fontSize: 28,
+        fontWeight: 700,
+      },
+      chord,
+      `score-chord-${chord}`,
+    ),
+  );
+
+  const rhythmBars = [122, 76, 154, 98, 136, 64].map((height, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 40 + index * 65,
+        bottom: 32,
+        width: 18,
+        height,
+        borderRadius: 9,
+        background: index % 2 === 0 ? "#1c686c" : "#171a1b",
+      },
+      undefined,
+      `score-rhythm-${index}`,
+    ),
+  );
+
+  const melodyNotes = [
+    { left: 42, top: 126, color: "#ef6958" },
+    { left: 116, top: 192, color: "#f5c84c" },
+    { left: 190, top: 98, color: "#77d2c7" },
+    { left: 264, top: 164, color: "#ef6958" },
+    { left: 338, top: 76, color: "#f5c84c" },
+  ].map((note, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: note.left,
+        top: note.top,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        border: "4px solid #101e20",
+        background: note.color,
+      },
+      undefined,
+      `score-note-${index}`,
+    ),
+  );
+
+  const melodyLines = [0, 1, 2, 3, 4].map((index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 38,
+        right: 38,
+        top: 92 + index * 48,
+        height: 2,
+        background: "#4b7477",
+      },
+      undefined,
+      `score-staff-${index}`,
+    ),
+  );
+
+  return panel(
+    {
+      position: "relative",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background: "#f3eee3",
+    },
+    [
+      ...Array.from({ length: 9 }, (_, index) =>
+        panel(
+          {
+            position: "absolute",
+            left: 38 + index * 146,
+            top: 0,
+            width: 1,
+            height: "100%",
+            background: "#ddd3c3",
+          },
+          undefined,
+          `score-grid-${index}`,
+        ),
+      ),
+      textLabel(
+        "CHORD  /  MULTI-DIM",
+        {
+          position: "absolute",
+          left: 68,
+          top: 46,
+          color: "#171a1b",
+          fontSize: 30,
+          fontWeight: 700,
+        },
+        "score-heading",
+      ),
+      panel(
+        {
+          position: "absolute",
+          right: 70,
+          top: 48,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+        },
+        [
+          textLabel(
+            "STYLE",
+            { color: "#515755", fontSize: 18, fontWeight: 700 },
+            "score-style-label",
+          ),
+          ...["#ef6958", "#f5c84c", "#1c686c"].map((color, index) =>
+            panel(
+              {
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                border: "3px solid #171a1b",
+                background: color,
+              },
+              undefined,
+              `score-style-${index}`,
+            ),
+          ),
+        ],
+        "score-styles",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 66,
+          top: 126,
+          display: "flex",
+          width: 478,
+          height: 438,
+          border: "5px solid #171a1b",
+          borderRadius: 7,
+          background: "#fffdf7",
+          boxShadow: "12px 12px 0 #171a1b",
+        },
+        [
+          textLabel(
+            "CHORD SCORE",
+            {
+              position: "absolute",
+              left: 32,
+              top: 30,
+              color: "#171a1b",
+              fontSize: 20,
+              fontWeight: 700,
+            },
+            "score-chord-label",
+          ),
+          panel(
+            {
+              position: "absolute",
+              right: 34,
+              top: 36,
+              width: 86,
+              height: 8,
+              borderRadius: 4,
+              background: "#ef6958",
+            },
+            undefined,
+            "score-chord-accent",
+          ),
+          ...chordCells,
+          ...rhythmBars,
+        ],
+        "score-chord-panel",
+      ),
+      panel(
+        {
+          position: "absolute",
+          right: 66,
+          top: 126,
+          display: "flex",
+          width: 478,
+          height: 438,
+          border: "5px solid #171a1b",
+          borderRadius: 7,
+          background: "#173b3e",
+          boxShadow: "12px 12px 0 #171a1b",
+        },
+        [
+          textLabel(
+            "MULTI-DIM SCORE",
+            {
+              position: "absolute",
+              left: 34,
+              top: 30,
+              color: "#f7f1e6",
+              fontSize: 20,
+              fontWeight: 700,
+            },
+            "score-multidim-label",
+          ),
+          ...melodyLines,
+          ...melodyNotes,
+          panel(
+            {
+              position: "absolute",
+              left: 40,
+              right: 40,
+              bottom: 28,
+              display: "flex",
+              height: 44,
+              gap: 12,
+            },
+            ["TONE 01", "TONE 02", "TONE 03"].map((tone, index) =>
+              textLabel(
+                tone,
+                {
+                  flex: 1,
+                  borderRadius: 4,
+                  background: index === 1 ? "#f5c84c" : "#e9e3d8",
+                  color: "#171a1b",
+                  fontSize: 13,
+                  fontWeight: 700,
+                },
+                `score-tone-${index}`,
+              ),
+            ),
+            "score-tones",
+          ),
+        ],
+        "score-multidim-panel",
+      ),
+    ],
+  );
+}
+
 const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "developer-workbench": () => panel(
     { display: "flex", width: "100%", height: "100%" },
@@ -1355,6 +1605,7 @@ const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "ai-full-stack": renderAiFullStack,
   "event-throttle": renderEventThrottle,
   "local-gateway": renderLocalGateway,
+  "score-modes": renderScoreModes,
 };
 
 export async function GET(

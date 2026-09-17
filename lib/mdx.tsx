@@ -7,6 +7,29 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 const mdxComponents = {
+  img: (props: React.ComponentProps<"img">) => {
+    const isAppScreenshot = props.className?.split(/\s+/).includes("app-screenshot");
+
+    return (
+      // MDX images may use arbitrary local or external paths; preserve the existing renderer.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        {...props}
+        alt={props.alt ?? ""}
+        style={
+          isAppScreenshot
+            ? {
+                ...props.style,
+                display: "block",
+                width: "100%",
+                maxWidth: "375px",
+                marginInline: "auto",
+              }
+            : props.style
+        }
+      />
+    );
+  },
   a: (props: React.ComponentProps<"a">) => {
     const href = props.href ?? "";
     if (href.startsWith("/")) {

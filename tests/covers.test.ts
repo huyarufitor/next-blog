@@ -60,6 +60,14 @@ describe("getCoverDefinition", () => {
     });
   });
 
+  it("maps the LiberLive score guide to its score modes theme", () => {
+    expect(getCoverDefinition("liberlive-score-modes.png")).toMatchObject({
+      name: "liberlive-score-modes.png",
+      title: "和弦谱还是多维曲谱？无弦吉他弹唱前，先选对一首歌的打开方式",
+      theme: "score-modes",
+    });
+  });
+
   it("returns null for an unknown cover name", () => {
     expect(getCoverDefinition("unknown.png")).toBeNull();
   });

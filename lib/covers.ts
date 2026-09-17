@@ -7,6 +7,7 @@ export type CoverTheme =
   | "ai-full-stack"
   | "event-throttle"
   | "local-gateway"
+  | "score-modes"
   | "developer-workbench";
 
 export type CoverDefinition = {
@@ -16,6 +17,14 @@ export type CoverDefinition = {
 };
 
 const coverDefinitions = new Map<string, CoverDefinition>([
+  [
+    "liberlive-score-modes.png",
+    {
+      name: "liberlive-score-modes.png",
+      title: "和弦谱还是多维曲谱？无弦吉他弹唱前，先选对一首歌的打开方式",
+      theme: "score-modes",
+    },
+  ],
   [
     "female-developer-self-positioning.png",
     {
