@@ -1,0 +1,363 @@
+---
+title: "从前端静态资源到后端 API：一份可维护的 Nginx 配置"
+date: "2026-09-23"
+summary: "以一个前端静态资源加后端 API 的 Web 项目为例，逐步配置 Nginx 的路由、反向代理、HTTPS、缓存与排错边界。"
+category: "技术实践"
+tags:
+  - "Nginx"
+  - "部署"
+  - "反向代理"
+  - "性能"
+  - "全栈"
+cover: "/images/posts/nginx-web-project.png"
+draft: false
+---
+
+很多 Web 项目在本地运行时很简单：前端开发服务器占一个端口，后端 API 占另一个端口。上线以后，用户只希望访问一个域名，浏览器也不应该直接暴露后端端口。
+
+Nginx 的价值，就在于把这条链路整理清楚：它接收公网请求，返回前端构建产物，把 `/api/` 转发给后端，同时处理 HTTPS、缓存、超时和日志等边界问题。
+
+本文使用一个足够常见、也容易迁移到不同框架的场景：前端是 React、Vue 或其他 SPA 的构建产物，后端服务监听 `127.0.0.1:3000`，域名是 `example.com`。
+
+## 先把请求链路画清楚
+
+```text
+浏览器
+  │  https://example.com
+  ▼
+Nginx（80 / 443）
+  ├── /              → /var/www/example.com/dist
+  ├── /assets/       → 静态资源，设置较长缓存
+  └── /api/          → 127.0.0.1:3000
+```
+
+这里有三个重要边界：
+
+- 浏览器只需要知道 `example.com`，不需要知道后端的 `3000` 端口。
+- Nginx 直接读取前端文件，页面和带哈希的资源不必经过 Node 服务。
+- 后端只监听回环地址，外部请求必须先经过 Nginx 的代理规则。
+
+目录和端口可以先约定成这样：
+
+```text
+/var/www/example.com/
+└── dist/
+    ├── index.html
+    ├── assets/
+    └── favicon.ico
+
+前端静态文件：/var/www/example.com/dist
+后端 API：    127.0.0.1:3000
+Nginx：       80 / 443
+```
+
+这不是唯一的目录布局，但把“宿主机文件路径”和“后端监听地址”提前写清楚，可以少掉很多 404 和 502。
+
+## 从最小配置开始
+
+先看一份只解决核心路由的配置。证书路径暂时用占位值，后面再补 HTTPS 和生产细节。
+
+```nginx
+server {
+    listen 80;
+    server_name example.com www.example.com;
+
+    root /var/www/example.com/dist;
+    index index.html;
+
+    # 前端页面与 SPA 路由
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # 后端 API
+    location /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+这份配置已经能覆盖大多数项目的第一步上线需求，但有两个细节值得单独解释。
+
+### `try_files` 只负责前端页面
+
+SPA 的路由通常由浏览器端接管。用户直接打开 `/dashboard` 时，服务器上未必存在名为 `dashboard` 的文件；`try_files` 会先查找真实文件，找不到时再返回 `index.html`，让前端路由继续处理。
+
+API 不能套用这个回退逻辑。`/api/users` 如果不存在，应该由后端返回真正的 404，而不是让 Nginx 返回前端首页。因此页面路由和 API 路由要放在清晰、互不混淆的 `location` 中。
+
+### `proxy_pass` 的斜杠会改变路径
+
+下面两种写法并不等价：
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:3000;
+}
+```
+
+请求 `/api/users` 时，后端通常收到 `/api/users`。
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:3000/;
+}
+```
+
+请求 `/api/users` 时，匹配到的 `/api/` 前缀可能会被替换，后端通常收到 `/users`。
+
+到底选择哪一种，取决于后端路由是定义为 `/api/users` 还是 `/users`。不要只凭习惯添加或删除末尾斜杠，应该用 `curl` 检查后端实际收到的路径。
+
+## `location` 规则要按职责拆开
+
+当配置逐渐变长时，最容易出现的问题是“一个规则负责太多事情”。可以把职责分成三层：页面、静态资源和 API。
+
+```nginx
+# 页面：允许 SPA 回退
+location / {
+    try_files $uri $uri/ /index.html;
+}
+
+# 带内容哈希的构建资源：可以长期缓存
+location ^~ /assets/ {
+    try_files $uri =404;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+}
+
+# API：永远交给后端决定状态码和响应体
+location ^~ /api/ {
+    proxy_pass http://127.0.0.1:3000;
+}
+```
+
+`^~` 的目的不是“让规则更快”，而是表达优先级：匹配到这个前缀后，不再继续尝试正则 `location`。是否使用它要结合项目中其他规则判断，重点是让静态资源和 API 的边界可读、可预测。
+
+## 把反向代理的上下文传给后端
+
+后端经常需要知道原始域名、客户端 IP 和用户使用的是 HTTP 还是 HTTPS。Nginx 不会自动把这些信息以应用熟悉的请求头传过去，建议显式配置：
+
+```nginx
+location ^~ /api/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    proxy_connect_timeout 5s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+}
+```
+
+应用框架是否信任 `X-Forwarded-*` 也要单独配置。例如，Express、Django、Rails 和 Spring 对“信任代理”的开关不同。只在请求确实经过可信 Nginx 时启用，不能把来自任意客户端的同名请求头当成真实信息。
+
+## HTTPS 和 HTTP 跳转
+
+生产环境通常让 Nginx 终止 TLS，后端继续使用本机 HTTP 通信。HTTP 的 server 只负责跳转：
+
+```nginx
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://example.com$request_uri;
+}
+```
+
+HTTPS 的 server 再承载页面和 API：
+
+```nginx
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    root /var/www/example.com/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ^~ /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+证书文件必须替换成当前服务器上真实存在、权限正确的路径。不要把证书私钥提交到代码仓库，也不要为了“先跑起来”把校验关闭。
+
+## 静态资源缓存不要一刀切
+
+带内容哈希的资源，例如 `app.8f31c2.js`，文件名变化就意味着内容变化，适合长期缓存。`index.html` 则通常不带哈希，它负责引用最新资源，不应该被缓存一年。
+
+```nginx
+location = /index.html {
+    add_header Cache-Control "no-cache";
+}
+
+location ^~ /assets/ {
+    try_files $uri =404;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+}
+```
+
+如果构建工具把字体、图片或其他文件放在不同目录，需要根据实际产物调整规则。缓存策略的前提是发布流程真的会为内容变化生成新文件名；否则长期缓存会让用户一直拿到旧版本。
+
+## WebSocket、SSE 和上传接口
+
+普通 JSON API 和长连接接口的网络特征不同，不应该共用一套拍脑袋的超时设置。
+
+WebSocket 需要显式传递升级头：
+
+```nginx
+location ^~ /socket/ {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+}
+```
+
+SSE 或其他流式响应通常需要关闭代理缓冲，并延长读取超时：
+
+```nginx
+location ^~ /api/events {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+    proxy_read_timeout 1h;
+    proxy_set_header Connection "";
+}
+```
+
+上传接口如果超过默认请求体大小，会直接得到 `413 Request Entity Too Large`。只给确实需要上传的入口提高限制：
+
+```nginx
+location ^~ /api/upload/ {
+    client_max_body_size 20m;
+    proxy_pass http://127.0.0.1:3000;
+}
+```
+
+超时和大小限制都应该结合后端实际能力设置。数值越大不代表服务越可靠，过大的限制可能让连接、内存和磁盘空间更容易被占满。
+
+## 一份可以继续维护的完整配置
+
+把上面的规则组合起来，可以得到一个适合作为起点的版本：
+
+```nginx
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    return 301 https://example.com$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    root /var/www/example.com/dist;
+    index index.html;
+
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+
+    location ^~ /assets/ {
+        try_files $uri =404;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
+    location ^~ /api/ {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 5s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+这份配置里的每个 `location` 都有单一职责。以后增加管理后台、文件下载或实时接口时，可以新增专门的规则，而不是继续把所有逻辑塞进 `location /`。
+
+## 修改配置前后都要验证
+
+先检查语法，再 reload：
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+然后从外部行为验证，而不是只看 Nginx 没有报错：
+
+```bash
+curl -I https://example.com/
+curl -I https://example.com/assets/app.8f31c2.js
+curl -i https://example.com/api/health
+```
+
+如果后端提供健康检查接口，优先使用它确认代理链路。浏览器开发者工具则适合检查页面资源是否命中缓存、API 的状态码和响应头。
+
+## 常见问题按现象排查
+
+### 页面刷新返回 404
+
+先确认前端是 SPA，再检查 `location /` 是否有 `try_files ... /index.html`。如果只有首页能打开、二级路由刷新失败，通常是服务器没有做路由回退。
+
+### API 返回 404，但后端路由看起来正确
+
+重点检查 `proxy_pass` 末尾斜杠，以及后端实际收到的路径。可以暂时在后端打印请求路径，或者对比 `/api/users` 和 `/users` 两种路由定义。
+
+### API 返回 502
+
+502 说明 Nginx 没有获得有效的上游响应。按顺序检查：后端进程是否运行、监听地址是否为 `127.0.0.1:3000`、Nginx 所在环境是否能访问这个地址、应用日志是否在启动后立刻退出。
+
+### 上传返回 413
+
+检查命中的 `location` 是否设置了足够的 `client_max_body_size`，同时确认后端、网关和对象存储是否还有更小的限制。只修改 Nginx 一处不一定能解决完整链路的问题。
+
+### 页面能打开，但 SSE 或 WebSocket 卡住
+
+确认请求命中了专门的 `location`，检查 WebSocket 的升级头、SSE 的 `proxy_buffering off` 和读取超时。还要确认后端本身确实在持续发送数据，而不是只建立了连接却没有事件。
+
+## 最后记住这几条原则
+
+一份可维护的 Nginx 配置，不是指令越多越专业，而是边界越清楚越容易修改：
+
+- 页面、静态资源和 API 使用不同的路由职责。
+- SPA 回退只服务于页面，不吞掉 API 的真实错误。
+- `proxy_pass` 的路径行为要根据后端路由验证。
+- HTTPS、代理头、超时和缓存都要显式表达意图。
+- 每次改动都先 `nginx -t`，再 reload，再用真实请求验证。
+
+当一个 Web 项目的域名、静态文件、API 和长连接入口都能在配置中找到清晰的位置，Nginx 就不再是一份“能用但不敢改”的黑盒文件，而是应用架构的一部分。

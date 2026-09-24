@@ -58,6 +58,14 @@ const coverDefinitions = new Map<string, CoverDefinition>([
     },
   ],
   [
+    "nginx-web-project.png",
+    {
+      name: "nginx-web-project.png",
+      title: "从前端静态资源到后端 API：一份可维护的 Nginx 配置",
+      theme: "signal-systems",
+    },
+  ],
+  [
     "dont-memorize-dependencies.png",
     {
       name: "dont-memorize-dependencies.png",
