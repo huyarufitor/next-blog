@@ -14,11 +14,11 @@ import NoteDetailPage, {
 import { metadata as notesMetadata } from "@/app/notes/page";
 import { metadata as searchMetadata } from "@/app/search/page";
 import TagDetailPage, {
-  decodeTagParam,
   generateMetadata as generateTagMetadata,
 } from "@/app/tags/[tag]/page";
 import { metadata as tagsMetadata } from "@/app/tags/page";
 import { siteConfig } from "@/lib/site-config";
+import { decodeTagParam } from "@/lib/metadata";
 
 const staticPages = [
   ["/", homeMetadata],

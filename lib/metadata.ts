@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 
 import { siteConfig } from "@/lib/site-config";
 
+export function decodeTagParam(tag: string) {
+  try {
+    return decodeURIComponent(tag);
+  } catch {
+    return tag;
+  }
+}
+
 type PageMetadataOptions = {
   title: string;
   description: string;

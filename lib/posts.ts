@@ -11,6 +11,7 @@ import {
   getAllCategories,
   getCategoryByName,
 } from "@/lib/categories";
+import { readPublicContentSource } from "@/lib/content-source";
 import { getAllNotes, getNoteBySlug } from "@/lib/notes";
 import type {
   ArchiveGroup,
@@ -152,7 +153,7 @@ export async function getAllPosts(options?: { includeDrafts?: boolean }) {
   const posts = await Promise.all(
     filenames.map(async (filename) => {
       const slug = filename.replace(/\.mdx$/, "");
-      const source = await fs.readFile(path.join(postsDirectory, filename), "utf8");
+      const source = await readPublicContentSource(`posts/${filename}`);
       return toSummary(slug, source);
     }),
   );
@@ -177,10 +178,7 @@ export async function getAllPosts(options?: { includeDrafts?: boolean }) {
 
 export async function getPostBySlug(slug: string) {
   try {
-    const source = await fs.readFile(
-      path.join(postsDirectory, `${slug}.mdx`),
-      "utf8",
-    );
+    const source = await readPublicContentSource(`posts/${slug}.mdx`);
     const post = toSummary(slug, source);
     return post.draft ? null : post;
   } catch {
@@ -299,7 +297,7 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
   const posts = await Promise.all(
     filenames.map(async (filename): Promise<SearchDocument | null> => {
       const slug = filename.replace(/\.mdx$/, "");
-      const source = await fs.readFile(path.join(postsDirectory, filename), "utf8");
+      const source = await readPublicContentSource(`posts/${filename}`);
       const post = toSummary(slug, source);
 
       return post.draft

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { createPageMetadata } from "@/lib/metadata";
+import { createPageMetadata, decodeTagParam } from "@/lib/metadata";
 import { getPostsByTag, getTagSummaries } from "@/lib/posts";
 
 type TagPageProps = {
@@ -10,14 +10,6 @@ type TagPageProps = {
     tag: string;
   }>;
 };
-
-export function decodeTagParam(tag: string) {
-  try {
-    return decodeURIComponent(tag);
-  } catch {
-    return tag;
-  }
-}
 
 export async function generateStaticParams() {
   const tags = await getTagSummaries();

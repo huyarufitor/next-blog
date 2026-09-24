@@ -1,6 +1,6 @@
 ---
 title: "和弦谱还是多维曲谱？无弦吉他弹唱前，先选对一首歌的打开方式"
-date: "2026-09-17"
+date: "2026-08-18"
 summary: "从演奏用途与曲谱数据结构出发，讲清 LiberLive App 中和弦谱、多维曲谱与风格包的区别，以及拿到一首歌后该怎么选。"
 category: "音乐学习"
 tags:
@@ -8,7 +8,7 @@ tags:
   - "LiberLive"
   - "弹唱"
 cover: "/images/posts/liberlive-score-modes.png"
-draft: true
+draft: false
 ---
 
 ## 打开一首歌，第一步不是马上开始弹
@@ -55,7 +55,11 @@ draft: true
 
 在 App 的曲谱设置里，可以看到“和弦谱式”“自动鼓机”“自动转调”等控制项。这里要区分**控制入口**和**曲谱数据**：开关决定演奏时是否启用某项能力、界面如何展示；真正让多维曲谱能在指定位置发生鼓机或调性变化的，是曲谱中预先组织的事件数据。
 
-<img className="app-screenshot" src="/images/posts/liberlive-score-modes/score-settings.png" alt="LiberLive 弹唱页的曲谱设置，包含和弦谱式、歌词字号、动作提示、自动鼓机和自动转调" />
+<img
+  className="app-screenshot"
+  src="/images/posts/liberlive-score-modes/score-settings.png"
+  alt="LiberLive 弹唱页的曲谱设置，包含和弦谱式、歌词字号、动作提示、自动鼓机和自动转调"
+/>
 
 _图 1：弹唱页的曲谱设置。自动鼓机、自动转调是演奏控制项，不等同于多维曲谱中的事件数据。_
 
@@ -65,7 +69,11 @@ _图 1：弹唱页的曲谱设置。自动鼓机、自动转调是演奏控制�
 
 这里的关键不是“弹得少”，而是分工明确：乐器负责提供和声与节奏，人声负责唱出歌曲的主旋律。二者合在一起，才是一段完整的弹唱。
 
-<img className="app-screenshot" src="/images/posts/liberlive-score-modes/chord-score.png" alt="LiberLive 和弦模式演奏页，和弦块与歌词位置对应，页面不显示主旋律音符轨道" />
+<img
+  className="app-screenshot"
+  src="/images/posts/liberlive-score-modes/chord-score.png"
+  alt="LiberLive 和弦模式演奏页，和弦块与歌词位置对应，页面不显示主旋律音符轨道"
+/>
 
 _图 2：和弦谱在演奏页中强调和弦与歌词的对应关系，主旋律由演唱者完成。_
 
@@ -102,7 +110,11 @@ _图 2：和弦谱在演奏页中强调和弦与歌词的对应关系，主旋�
 
 当前设计稿的演奏页把这一入口标为“独奏模式”，本文使用“多维曲谱”来描述它背后的曲谱类型与数据结构。一个是用户在演奏页看到的模式文案，一个是曲谱如何组织音乐信息的业务称呼，两者讨论的是同一类打开方式，但观察角度不同。
 
-<img className="app-screenshot" src="/images/posts/liberlive-score-modes/multidimensional-score.png" alt="LiberLive 独奏模式演奏页，同时显示旋律音、和弦块与歌词位置" />
+<img
+  className="app-screenshot"
+  src="/images/posts/liberlive-score-modes/multidimensional-score.png"
+  alt="LiberLive 独奏模式演奏页，同时显示旋律音、和弦块与歌词位置"
+/>
 
 _图 3：设计稿中的“独奏模式”界面。画面同时呈现旋律音、和弦与歌词位置，背后由多维曲谱数据支撑。_
 
@@ -121,14 +133,18 @@ _图 3：设计稿中的“独奏模式”界面。画面同时呈现旋律音�
 
 实际上，它们回答的是两个不同的问题：
 
-| 选择 | 它主要回答的问题 |
-| --- | --- |
+| 选择              | 它主要回答的问题                                   |
+| ----------------- | -------------------------------------------------- |
 | 和弦谱 / 多维曲谱 | 曲谱需要记录哪些音乐数据，这一遍准备怎样表现歌曲？ |
-| 风格包 | 在当前曲谱下，希望整首歌呈现什么样的听感？ |
+| 风格包            | 在当前曲谱下，希望整首歌呈现什么样的听感？         |
 
 和弦谱可以切换风格包，多维曲谱也可以切换风格包。也就是说，风格包横跨两种曲谱类型，并不替代曲谱本身。
 
-<img className="app-screenshot" src="/images/posts/liberlive-score-modes/style-pack.png" alt="LiberLive 风格包详情页，展示风格封面、应用与试听按钮、节奏型以及推荐曲谱" />
+<img
+  className="app-screenshot"
+  src="/images/posts/liberlive-score-modes/style-pack.png"
+  alt="LiberLive 风格包详情页，展示风格封面、应用与试听按钮、节奏型以及推荐曲谱"
+/>
 
 _图 4：风格包详情页。它改变当前曲谱的整体演绎听感，也可以在应用前试听，但不是第三种曲谱结构。_
 

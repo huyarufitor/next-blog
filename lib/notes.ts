@@ -6,6 +6,7 @@ import GithubSlugger from "github-slugger";
 import matter from "gray-matter";
 import { z } from "zod";
 
+import { readPublicContentSource } from "@/lib/content-source";
 import type { Note, NoteSummary, NoteVisibility } from "@/types/note";
 import type { TocEntry } from "@/types/post";
 
@@ -91,7 +92,12 @@ async function readNotesFromDirectory(
 
   return Promise.all(
     files.map(async (filePath) => {
-      const source = await fs.readFile(filePath, "utf8");
+      const source =
+        visibility === "public" && directory === defaultPublicDirectory
+          ? await readPublicContentSource(
+              `notes/${path.relative(directory, filePath).replace(/\\/g, "/")}`,
+            )
+          : await fs.readFile(filePath, "utf8");
       const { data, content } = matter(source);
       const frontmatter = noteFrontmatterSchema.parse(data);
 
