@@ -99,6 +99,30 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       theme: "event-throttle",
     },
   ],
+  [
+    "ai-frontend-requirement-workflow.png",
+    {
+      name: "ai-frontend-requirement-workflow.png",
+      title: "我现在是怎么用 AI 完成一个前端需求的",
+      theme: "ai-full-stack",
+    },
+  ],
+  [
+    "three-year-technical-direction.png",
+    {
+      name: "three-year-technical-direction.png",
+      title: "我如何判断一个技术方向值不值得投入三年",
+      theme: "developer-workbench",
+    },
+  ],
+  [
+    "feedback-systems-in-sports-and-code.png",
+    {
+      name: "feedback-systems-in-sports-and-code.png",
+      title: "游泳、健身、羽毛球和写代码，原来都是反馈系统",
+      theme: "signal-systems",
+    },
+  ],
 ]);
 
 export function getCoverDefinition(name: string) {

@@ -1,0 +1,103 @@
+---
+title: "我现在是怎么用 AI 完成一个前端需求的"
+date: "2026-09-23"
+summary: "用一个文章列表筛选的 TypeScript 示例，说明我如何让 AI 参与需求拆分、代码实现和测试，而不是只让它生成一段看起来完整的代码。"
+category: "技术实践"
+tags:
+  - "AI"
+  - "前端"
+  - "TypeScript"
+  - "前端工程化"
+cover: "/images/posts/ai-frontend-requirement-workflow.png"
+draft: false
+---
+
+AI 最容易制造的错觉，是把“生成代码”当成“完成需求”。
+
+我现在更愿意把 AI 放进一个完整闭环：**我负责定义问题和做判断，AI 负责加快理解和实现，测试负责提供反馈。**
+
+## 先写验收条件
+
+以“给文章列表增加分类筛选”为例，我会先写清楚：
+
+- 筛选项来自已有的 `category` 字段；
+- 选择分类后只展示匹配文章；
+- 没有匹配项时显示空状态；
+- 不修改原始数组，也不新增生产依赖。
+
+这比“加一个筛选功能”更接近可验证的结果，也能限制 AI 的实现范围。
+
+## 先拆逻辑，再接界面
+
+我会要求 AI 先写一个纯函数，而不是同时生成数据、状态和 JSX：
+
+```ts
+type Post = {
+  title: string;
+  category: string;
+};
+
+export function filterPosts(posts: Post[], category: string) {
+  if (category === "all") return posts;
+  return posts.filter((post) => post.category === category);
+}
+```
+
+它的边界很清楚：`all` 返回全部文章，其他值只返回匹配项，也不会修改输入数组。接下来再接到组件状态：
+
+```tsx
+const [category, setCategory] = useState("all");
+const visiblePosts = useMemo(
+  () => filterPosts(posts, category),
+  [posts, category],
+);
+```
+
+拆开以后，问题可以快速定位：是筛选逻辑错了，还是状态和渲染出了问题。
+
+## 给 AI 足够的上下文
+
+我会一起提供相关页面、`Post` 类型、相邻组件和测试命令，并要求 AI 先回答：
+
+1. 当前项目的数据流和组件约定是什么？
+2. 这个需求有哪些空状态和边界条件？
+3. 需要修改哪些文件，为什么？
+
+提示词可以很短：
+
+```text
+请先阅读相关文件，不要立即改代码。
+目标：为文章列表增加分类筛选。
+约束：复用现有类型和样式，不新增生产依赖，不修改原始数据。
+请先输出：实现步骤、边界情况、需要补充的测试和未确认的假设。
+```
+
+如果 AI 提到了仓库里不存在的组件、字段或依赖，我会在实现前纠正。
+
+## 用测试确认行为
+
+纯函数可以先用一个很小的测试确认：
+
+```ts
+it("filters posts without mutating the source", () => {
+  const posts = [
+    { title: "A", category: "技术实践" },
+    { title: "B", category: "音乐学习" },
+  ];
+
+  expect(filterPosts(posts, "技术实践")).toEqual([posts[0]]);
+  expect(filterPosts(posts, "all")).toBe(posts);
+});
+```
+
+测试失败时，我会把失败信息和相关代码交给 AI，让它先解释原因，再提出最小修复。目标不是让测试盲目变绿，而是确认测试表达了正确行为。
+
+实现完成后，再运行 lint、类型检查和构建。对于内容型前端，组件改动还可能影响路由、搜索、元数据和封面。
+
+## 哪些判断不能交给 AI
+
+我不会让 AI 替我决定是否真的需要这个功能、哪些内容可以公开、是否要引入新依赖，以及一个架构取舍的长期成本是否值得。
+
+AI 可以列方案、找遗漏、生成初稿，但它不了解全部项目约束，也不承担未来维护责任。最终需要留下的是需求边界、取舍理由和验证结果。
+
+对我来说，AI 参与前端开发之后，工程师的核心工作反而更清晰了：**定义问题、做出判断、证明结果。**
