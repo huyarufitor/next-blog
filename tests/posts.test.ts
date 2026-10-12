@@ -58,13 +58,13 @@ describe("category queries", () => {
     expect(
       categories.find((category) => category.slug === "technical-practice")
         ?.count,
-    ).toBe(7);
+    ).toBe(8);
   });
 
   it("filters posts by category slug", async () => {
     const posts = await getPostsByCategory("technical-practice");
 
-    expect(posts).toHaveLength(7);
+    expect(posts).toHaveLength(8);
     expect(posts.every((post) => post.category.slug === "technical-practice")).toBe(true);
   });
 });
@@ -83,7 +83,10 @@ describe("post covers", () => {
   });
 
   it("requires every post, including drafts, to define a site-local cover", async () => {
-    const posts = await getAllPosts({ includeDrafts: true });
+    const posts = await getAllPosts({
+      includeDrafts: true,
+      includeUnlisted: true,
+    });
 
     expect(posts.length).toBeGreaterThan(0);
     expect(posts.every((post) => /^\/images\/posts\/.+\.png$/.test(post.cover))).toBe(
@@ -91,6 +94,27 @@ describe("post covers", () => {
     );
     expect(
       posts.every((post) => getCoverDefinition(post.cover.split("/").at(-1) ?? "")),
+    ).toBe(true);
+  });
+});
+
+describe("unlisted post frontmatter", () => {
+  const baseFrontmatter = {
+    title: "仅通过链接访问的文章",
+    date: "2026-10-08",
+    summary: "用于验证不公开展示文章的元数据。",
+    category: "生活切片" as const,
+    tags: ["旅行"],
+    cover: "/images/posts/unlisted-example.png",
+  };
+
+  it("defaults unlisted to false", () => {
+    expect(parsePostFrontmatter(baseFrontmatter).unlisted).toBe(false);
+  });
+
+  it("preserves an explicit unlisted flag", () => {
+    expect(
+      parsePostFrontmatter({ ...baseFrontmatter, unlisted: true }).unlisted,
     ).toBe(true);
   });
 });

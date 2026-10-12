@@ -1592,6 +1592,251 @@ function renderScoreModes() {
   );
 }
 
+function renderTropicalJourney() {
+  const waveLines = [0, 1, 2].map((index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 430 + index * 104,
+        top: 378 + index * 30,
+        width: 260 - index * 34,
+        height: 8,
+        borderRadius: 4,
+        background: index === 1 ? "#d9f4ef" : "#ffffff",
+      },
+      undefined,
+      `tropical-wave-${index}`,
+    ),
+  );
+
+  const palmLeaves = [-56, -28, 0, 28, 56].map((rotation, index) =>
+    panel(
+      {
+        position: "absolute",
+        left: 150,
+        top: 92,
+        width: 178,
+        height: 38,
+        borderRadius: 20,
+        background: index % 2 === 0 ? "#1c6c56" : "#2b8d64",
+        transform: `rotate(${rotation}deg)`,
+        transformOrigin: "12px 19px",
+      },
+      undefined,
+      `tropical-palm-leaf-${index}`,
+    ),
+  );
+
+  const person = (
+    left: number,
+    top: number,
+    color: string,
+    key: string,
+  ) =>
+    panel(
+      {
+        position: "absolute",
+        left,
+        top,
+        display: "flex",
+        width: 58,
+        height: 136,
+      },
+      [
+        panel(
+          {
+            position: "absolute",
+            left: 15,
+            top: 0,
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            background: "#263536",
+          },
+          undefined,
+          `${key}-head`,
+        ),
+        panel(
+          {
+            position: "absolute",
+            left: 8,
+            top: 34,
+            width: 42,
+            height: 64,
+            borderRadius: 18,
+            background: color,
+          },
+          undefined,
+          `${key}-body`,
+        ),
+        panel(
+          {
+            position: "absolute",
+            left: 12,
+            top: 91,
+            width: 12,
+            height: 45,
+            borderRadius: 6,
+            background: "#263536",
+            transform: "rotate(7deg)",
+          },
+          undefined,
+          `${key}-leg-left`,
+        ),
+        panel(
+          {
+            position: "absolute",
+            right: 12,
+            top: 91,
+            width: 12,
+            height: 45,
+            borderRadius: 6,
+            background: "#263536",
+            transform: "rotate(-7deg)",
+          },
+          undefined,
+          `${key}-leg-right`,
+        ),
+      ],
+      key,
+    );
+
+  return panel(
+    {
+      position: "relative",
+      display: "flex",
+      width: "100%",
+      height: "100%",
+      overflow: "hidden",
+      background: "#bfe7e8",
+    },
+    [
+      panel(
+        {
+          position: "absolute",
+          right: 116,
+          top: 72,
+          width: 122,
+          height: 122,
+          borderRadius: 61,
+          background: "#f26f52",
+        },
+        undefined,
+        "tropical-sun",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 410,
+          top: 110,
+          width: 172,
+          height: 24,
+          borderRadius: 12,
+          background: "#f8faf4",
+        },
+        undefined,
+        "tropical-cloud-one",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 694,
+          top: 180,
+          width: 118,
+          height: 18,
+          borderRadius: 9,
+          background: "#f8faf4",
+        },
+        undefined,
+        "tropical-cloud-two",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 288,
+          height: 242,
+          background: "#168e9b",
+        },
+        undefined,
+        "tropical-sea",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: -80,
+          right: -80,
+          bottom: -90,
+          height: 260,
+          borderRadius: "50% 50% 0 0",
+          background: "#f2d790",
+          transform: "rotate(-3deg)",
+        },
+        undefined,
+        "tropical-sand",
+      ),
+      ...waveLines,
+      panel(
+        {
+          position: "absolute",
+          left: 178,
+          top: 102,
+          width: 40,
+          height: 392,
+          borderRadius: 20,
+          background: "#77513b",
+          transform: "rotate(10deg)",
+          transformOrigin: "bottom center",
+        },
+        undefined,
+        "tropical-palm-trunk",
+      ),
+      ...palmLeaves,
+      person(780, 406, "#e6553f", "tropical-person-one"),
+      person(850, 396, "#f6c84a", "tropical-person-two"),
+      panel(
+        {
+          position: "absolute",
+          left: 824,
+          top: 456,
+          width: 44,
+          height: 10,
+          borderRadius: 5,
+          background: "#263536",
+          transform: "rotate(-8deg)",
+        },
+        undefined,
+        "tropical-held-hands",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 64,
+          bottom: 48,
+          width: 330,
+          height: 12,
+          background: "#263536",
+        },
+        undefined,
+        "tropical-baseline",
+      ),
+      panel(
+        {
+          position: "absolute",
+          left: 64,
+          bottom: 76,
+          width: 72,
+          height: 12,
+          background: "#e6553f",
+        },
+        undefined,
+        "tropical-accent",
+      ),
+    ],
+  );
+}
+
 const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "developer-workbench": () => panel(
     { display: "flex", width: "100%", height: "100%" },
@@ -1606,6 +1851,7 @@ const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "event-throttle": renderEventThrottle,
   "local-gateway": renderLocalGateway,
   "score-modes": renderScoreModes,
+  "tropical-journey": renderTropicalJourney,
 };
 
 export async function GET(

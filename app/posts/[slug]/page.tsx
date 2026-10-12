@@ -22,7 +22,7 @@ type PostPageProps = {
 };
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
+  const posts = await getAllPosts({ includeUnlisted: true });
   return posts.map((post) => ({
     slug: post.slug,
   }));
@@ -70,6 +70,7 @@ export async function generateMetadata({
       description: post.summary,
       images: [openGraphImage],
     },
+    robots: post.unlisted ? { index: false, follow: false } : undefined,
   };
 }
 
@@ -186,15 +187,17 @@ export default async function PostPage({ params }: PostPageProps) {
         </div>
       </section>
 
-      <section className="surface-panel rounded-lg p-8">
-        <p className="eyebrow">评论</p>
-        <h2 className="mt-2 text-2xl font-semibold text-strong">
-          参与讨论
-        </h2>
-        <div className="mt-6">
-          <GiscusComments />
-        </div>
-      </section>
+      {!post.unlisted ? (
+        <section className="surface-panel rounded-lg p-8">
+          <p className="eyebrow">评论</p>
+          <h2 className="mt-2 text-2xl font-semibold text-strong">
+            参与讨论
+          </h2>
+          <div className="mt-6">
+            <GiscusComments />
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

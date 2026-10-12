@@ -8,6 +8,7 @@ export type CoverTheme =
   | "event-throttle"
   | "local-gateway"
   | "score-modes"
+  | "tropical-journey"
   | "developer-workbench";
 
 export type CoverDefinition = {
@@ -17,6 +18,14 @@ export type CoverDefinition = {
 };
 
 const coverDefinitions = new Map<string, CoverDefinition>([
+  [
+    "2026-thailand-honeymoon.png",
+    {
+      name: "2026-thailand-honeymoon.png",
+      title: "中秋与国庆之间，我们去了泰兰德",
+      theme: "tropical-journey",
+    },
+  ],
   [
     "liberlive-score-modes.png",
     {

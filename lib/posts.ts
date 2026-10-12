@@ -62,6 +62,7 @@ const frontmatterSchema = z.object({
   category: z.enum(categoryNames),
   tags: z.array(z.string()).default([]),
   draft: z.boolean().optional().default(false),
+  unlisted: z.boolean().optional().default(false),
   cover: z.string().regex(/^\/images\/posts\/.+\.png$/),
 });
 
@@ -133,6 +134,7 @@ function toSummary(slug: string, source: string): Post {
     category,
     tags,
     draft: frontmatter.draft,
+    unlisted: frontmatter.unlisted,
     cover: frontmatter.cover,
     readingTime: formatReadingTime(readingTime(content).minutes),
     toc: extractToc(content),
@@ -148,7 +150,10 @@ async function getPostFilenames() {
     .map((entry) => entry.name);
 }
 
-export async function getAllPosts(options?: { includeDrafts?: boolean }) {
+export async function getAllPosts(options?: {
+  includeDrafts?: boolean;
+  includeUnlisted?: boolean;
+}) {
   const filenames = await getPostFilenames();
   const posts = await Promise.all(
     filenames.map(async (filename) => {
@@ -161,6 +166,7 @@ export async function getAllPosts(options?: { includeDrafts?: boolean }) {
   return sortPosts(
     posts
       .filter((post) => (options?.includeDrafts ? true : !post.draft))
+      .filter((post) => (options?.includeUnlisted ? true : !post.unlisted))
       .map((post) => ({
         slug: post.slug,
         title: post.title,
@@ -170,6 +176,7 @@ export async function getAllPosts(options?: { includeDrafts?: boolean }) {
         category: post.category,
         tags: post.tags,
         draft: post.draft,
+        unlisted: post.unlisted,
         cover: post.cover,
         readingTime: post.readingTime,
       })),
@@ -300,7 +307,7 @@ export async function getSearchDocuments(): Promise<SearchDocument[]> {
       const source = await readPublicContentSource(`posts/${filename}`);
       const post = toSummary(slug, source);
 
-      return post.draft
+      return post.draft || post.unlisted
         ? null
         : {
             id: slug,

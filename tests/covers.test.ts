@@ -68,6 +68,14 @@ describe("getCoverDefinition", () => {
     });
   });
 
+  it("maps the Thailand honeymoon article to its tropical journey theme", () => {
+    expect(getCoverDefinition("2026-thailand-honeymoon.png")).toMatchObject({
+      name: "2026-thailand-honeymoon.png",
+      title: "中秋与国庆之间，我们去了泰兰德",
+      theme: "tropical-journey",
+    });
+  });
+
   it("returns null for an unknown cover name", () => {
     expect(getCoverDefinition("unknown.png")).toBeNull();
   });
@@ -175,6 +183,7 @@ describe("PostCard cover", () => {
           },
           tags: [],
           draft: false,
+          unlisted: false,
           cover: "/images/posts/blog-foundation.png",
           readingTime: "约 3 分钟阅读",
         },

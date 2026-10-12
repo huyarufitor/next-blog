@@ -24,6 +24,7 @@ export type PostSummary = {
   category: Category;
   tags: Tag[];
   draft: boolean;
+  unlisted: boolean;
   cover: string;
   readingTime: string;
 };
