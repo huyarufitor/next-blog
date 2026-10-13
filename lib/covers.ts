@@ -35,6 +35,14 @@ const coverDefinitions = new Map<string, CoverDefinition>([
     },
   ],
   [
+    "guitar-chord-fingering.png",
+    {
+      name: "guitar-chord-fingering.png",
+      title: "音乐基础乐理：吉他和弦指法入门",
+      theme: "score-modes",
+    },
+  ],
+  [
     "female-developer-self-positioning.png",
     {
       name: "female-developer-self-positioning.png",
