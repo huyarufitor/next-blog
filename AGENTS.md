@@ -14,12 +14,19 @@
 - `content/notes-local`：本机私密或待脱敏内容，被 Git 忽略且生产不读取。
 - `scripts/migrate-vuepress-content.ts`：显式清单驱动的 VuePress 迁移器。
 - `docs/plans`：已确认的设计和实施计划。
+- `openspec/`：跨文件、跨模块或有公开/安全风险的变更规格。
 
 ## Skill 路由
 
 - 新建、编辑、审核或发布文章与笔记时，使用 `.agents/skills/publish-blog-content`。
 - 盘点、分类或迁移旧 VuePress 内容时，使用 `.agents/skills/migrate-vuepress-content`。
 - 修改 Skill 时，遵循系统 Skill 创建流程并运行 Skill 校验器。
+
+## OpenSpec 路由
+
+- 新增页面、路由、交互、内容模型，或修改搜索、迁移、构建、发布、隐私规则时，先在 `openspec/changes/<change-id>/` 创建 proposal、spec、design 和 tasks。
+- 单篇文章润色、错别字修正和非常明确的一行样式修复可以跳过完整 OpenSpec。
+- 开始实现前运行 `npm run openspec:check`，完成后按影响范围补充测试、lint、类型检查和构建结果。
 
 ## 内容安全
 

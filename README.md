@@ -57,6 +57,18 @@ draft: false
 
 每篇文章都必须配置与主题相关的 16:9 封面。上例路径仅展示已注册封面的格式，新文章不得直接复用无关封面。当前封面由 `app/images/posts/[name]/route.ts` 动态生成，新增动态封面时还需在 `lib/covers.ts` 注册同名文件和视觉主题。完整要求见 [博客文章发布规范](./docs/plans/article-publishing-standards.md)。
 
+## OpenSpec 变更规格
+
+这是一个整体项目，涉及页面、路由、内容模型、迁移工具、发布规则或隐私边界的改动，建议先使用 OpenSpec 把需求和验收标准写清楚。规格位于 [`openspec/`](./openspec/)，每项变更包含 proposal、spec、design 和 tasks；已经生效的规则整理到 `openspec/specs`。
+
+单篇文章润色、错别字修正和非常明确的一行样式修复可以直接修改。创建或更新规格后运行：
+
+```bash
+npm run openspec:check
+```
+
+OpenSpec 是仓库内的 Markdown 工作流，不会增加生产依赖，也不会连接外部服务。完整约定见 [`openspec/README.md`](./openspec/README.md)。
+
 ## 知识库与本地笔记
 
 内容按用途分为三类：
