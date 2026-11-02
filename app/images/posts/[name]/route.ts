@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 
 import { getCoverDefinition, type CoverTheme } from "@/lib/covers";
 import { DeveloperWorkbench } from "@/lib/cover-artworks/developer-workbench";
+import { WorldTimeline } from "@/lib/cover-artworks/world-timeline";
 
 type CoverRouteContext = {
   params: Promise<{
@@ -1852,6 +1853,10 @@ const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "local-gateway": renderLocalGateway,
   "score-modes": renderScoreModes,
   "tropical-journey": renderTropicalJourney,
+  "world-timeline": () => panel(
+    { display: "flex", width: "100%", height: "100%" },
+    createElement(WorldTimeline),
+  ),
 };
 
 export async function GET(

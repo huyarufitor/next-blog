@@ -9,6 +9,7 @@ export type CoverTheme =
   | "local-gateway"
   | "score-modes"
   | "tropical-journey"
+  | "world-timeline"
   | "developer-workbench";
 
 export type CoverDefinition = {
@@ -138,6 +139,14 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       name: "three-year-technical-direction.png",
       title: "我如何判断一个技术方向值不值得投入三年",
       theme: "developer-workbench",
+    },
+  ],
+  [
+    "history-atlas-timeline.png",
+    {
+      name: "history-atlas-timeline.png",
+      title: "给世界地图加一条时间轴：从历史地图聊技术与 AI 制作万物",
+      theme: "world-timeline",
     },
   ],
   [

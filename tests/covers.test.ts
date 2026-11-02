@@ -68,6 +68,14 @@ describe("getCoverDefinition", () => {
     });
   });
 
+  it("maps the history atlas article to its world timeline theme", () => {
+    expect(getCoverDefinition("history-atlas-timeline.png")).toMatchObject({
+      name: "history-atlas-timeline.png",
+      title: "给世界地图加一条时间轴：从历史地图聊技术与 AI 制作万物",
+      theme: "world-timeline",
+    });
+  });
+
   it("maps the Thailand honeymoon article to its tropical journey theme", () => {
     expect(getCoverDefinition("2026-thailand-honeymoon.png")).toMatchObject({
       name: "2026-thailand-honeymoon.png",
