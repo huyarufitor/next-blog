@@ -10,6 +10,7 @@ export type CoverTheme =
   | "score-modes"
   | "tropical-journey"
   | "world-timeline"
+  | "spec-lifecycle"
   | "developer-workbench";
 
 export type CoverDefinition = {
@@ -139,6 +140,14 @@ const coverDefinitions = new Map<string, CoverDefinition>([
       name: "three-year-technical-direction.png",
       title: "我如何判断一个技术方向值不值得投入三年",
       theme: "developer-workbench",
+    },
+  ],
+  [
+    "when-to-use-openspec.png",
+    {
+      name: "when-to-use-openspec.png",
+      title: "我怎么判断一个需求要不要上 OpenSpec",
+      theme: "spec-lifecycle",
     },
   ],
   [

@@ -3,6 +3,7 @@ import { ImageResponse } from "next/og";
 
 import { getCoverDefinition, type CoverTheme } from "@/lib/covers";
 import { DeveloperWorkbench } from "@/lib/cover-artworks/developer-workbench";
+import { SpecLifecycle } from "@/lib/cover-artworks/spec-lifecycle";
 import { WorldTimeline } from "@/lib/cover-artworks/world-timeline";
 
 type CoverRouteContext = {
@@ -1856,6 +1857,10 @@ const coverRenderers: Record<CoverTheme, () => ReturnType<typeof panel>> = {
   "world-timeline": () => panel(
     { display: "flex", width: "100%", height: "100%" },
     createElement(WorldTimeline),
+  ),
+  "spec-lifecycle": () => panel(
+    { display: "flex", width: "100%", height: "100%" },
+    createElement(SpecLifecycle),
   ),
 };
 

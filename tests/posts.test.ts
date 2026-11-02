@@ -58,13 +58,13 @@ describe("category queries", () => {
     expect(
       categories.find((category) => category.slug === "technical-practice")
         ?.count,
-    ).toBe(9);
+    ).toBe(10);
   });
 
   it("filters posts by category slug", async () => {
     const posts = await getPostsByCategory("technical-practice");
 
-    expect(posts).toHaveLength(9);
+    expect(posts).toHaveLength(10);
     expect(posts.every((post) => post.category.slug === "technical-practice")).toBe(true);
   });
 });

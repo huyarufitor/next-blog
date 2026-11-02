@@ -68,6 +68,14 @@ describe("getCoverDefinition", () => {
     });
   });
 
+  it("maps the OpenSpec article to its spec lifecycle theme", () => {
+    expect(getCoverDefinition("when-to-use-openspec.png")).toMatchObject({
+      name: "when-to-use-openspec.png",
+      title: "我怎么判断一个需求要不要上 OpenSpec",
+      theme: "spec-lifecycle",
+    });
+  });
+
   it("maps the history atlas article to its world timeline theme", () => {
     expect(getCoverDefinition("history-atlas-timeline.png")).toMatchObject({
       name: "history-atlas-timeline.png",
