@@ -2,11 +2,11 @@
 
 一个静态优先的中文技术博客，基于 Next.js 16、React 19、TypeScript、Tailwind CSS 4 和本地 MDX。项目包含标签、归档、中文搜索、RSS、Sitemap、文章封面、动态 OG 图、明暗主题、Giscus 评论和 Vercel Analytics。
 
-当前站点名称“栈间笔记”和作者“林默”均为 AI Mock 信息，仅用于演示完整博客体验，并不代表真实人物或组织。上线前可在 `lib/site-config.ts` 中替换站点名称、描述和作者信息，并通过环境变量设置真实域名与外部服务。
+线上站点：[https://lisamariablog.vercel.app](https://lisamariablog.vercel.app)。站点名称、作者简介等可在 `lib/site-config.ts` 中调整；正式域名通过环境变量 `NEXT_PUBLIC_SITE_URL` 配置。
 
 ## 本地开发
 
-项目要求 Node.js 22，仓库中的 `.nvmrc` 固定了当前开发版本。
+项目要求 Node.js 22，仓库中的 `.nvmrc` 固定了当前开发版本。npm 包名为 `next-blog`。
 
 ```bash
 nvm use
@@ -45,7 +45,7 @@ draft: false
 这里开始写 MDX 正文。
 ```
 
-推荐直接复制 [content/post-template.mdx](/Users/fitor/Documents/web-demo/content/post-template.mdx) 作为新文章起点。
+推荐直接复制 [content/post-template.mdx](./content/post-template.mdx) 作为新文章起点。
 
 `title`、`date`、`summary`、`category`、`tags` 和 `cover` 为必填字段；`draft` 可省略，默认为 `false`。`category` 目前使用固定集合：
 
@@ -78,7 +78,7 @@ OpenSpec 是仓库内的 Markdown 工作流，不会增加生产依赖，也不�
 - `content/notes-local`：仅本机使用的笔记。该目录被 Git 忽略，生产构建也不会读取。
 
 公开和本地笔记使用相同 frontmatter，可以复制
-[content/note-template.md](/Users/fitor/Documents/web-demo/content/note-template.md) 后手动迁移。文件相对于内容目录的路径就是访问路径，例如
+[content/note-template.md](./content/note-template.md) 后手动迁移。文件相对于内容目录的路径就是访问路径，例如
 `content/notes/vue/reactivity.md` 对应 `/notes/vue/reactivity`。
 
 本地笔记不要存放在 `content/notes` 后再依赖字段隐藏。敏感资料应直接放进
