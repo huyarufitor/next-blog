@@ -114,8 +114,8 @@ export const siteConfig = {
   url: getSiteUrl(),
   author: {
     name: "fitorhu",
-    role: "开发者 / 音乐学习者",
+    role: "Web + AI 全栈工程师",
     summary:
-      "一个热爱生活的女开发者，做过 4 年音视频、2 年音乐相关 Web，也喜欢健身、游泳和羽毛球。这里会记录技术、音乐学习与日常思考，也认真寻找 AI 时代里依然值得长期投入的方向。",
+      "一个热爱生活的女程序媛，做过 4 年半音视频相关 Web 前端、近 3 年音乐相关 Web + AI 全栈，正在探索 AI 的不同工作提效能力，也喜欢健身、游泳和羽毛球等运动。",
   },
 } as const;
